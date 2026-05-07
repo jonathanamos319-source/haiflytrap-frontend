@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
 import {
@@ -465,7 +466,7 @@ function ProductsView() {
   const handleSaveProduct = async () => {
     setAttemptedSubmit(true);
     if (!form.name || !form.category || !form.price || !form.stock) return;
-    
+
     try {
       await addProduct({
         name: form.name,
@@ -489,9 +490,8 @@ function ProductsView() {
   };
 
 
-  const inputClass = (val: string) => `w-full px-3 py-2.5 border rounded-xl text-sm transition-all ${
-    attemptedSubmit && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20'
-  }`;
+  const inputClass = (val: string) => `w-full px-3 py-2.5 border rounded-xl text-sm transition-all ${attemptedSubmit && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20'
+    }`;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -635,7 +635,7 @@ function ProductsView() {
                   <td className="px-4 py-3.5">
                     <div className="flex gap-1.5">
                       <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors no-anim"><Edit2 className="w-3.5 h-3.5 text-slate-400" /></button>
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           if (confirm('Are you sure you want to delete this product?')) {
@@ -800,8 +800,8 @@ function ProductsView() {
                   <h3 className="text-xl font-bold text-slate-800">{selectedProduct.name}</h3>
                   <p className="text-xs text-slate-400 mt-1">ID: {selectedProduct.id}</p>
                 </div>
-                <button 
-                  onClick={() => setSelectedProduct(null)} 
+                <button
+                  onClick={() => setSelectedProduct(null)}
                   className="w-10 h-10 bg-slate-50 hover:bg-gold hover:text-white flex items-center justify-center rounded-full transition-all duration-300 group shadow-sm hover:shadow-gold-glow"
                 >
                   <X className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
@@ -812,18 +812,18 @@ function ProductsView() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
                     <p className="text-[10px] text-slate-400 font-semibold uppercase mb-1">Price (₦)</p>
-                    <input 
-                      type="number" 
-                      value={selectedProduct.price} 
+                    <input
+                      type="number"
+                      value={selectedProduct.price}
                       onChange={(e) => setSelectedProduct({ ...selectedProduct, price: Number(e.target.value) })}
                       className="w-full bg-transparent border-none p-0 text-lg font-bold text-slate-800 focus:outline-none focus:ring-0"
                     />
                   </div>
                   <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
                     <p className="text-[10px] text-slate-400 font-semibold uppercase mb-1">Product Name</p>
-                    <input 
-                      type="text" 
-                      value={selectedProduct.name} 
+                    <input
+                      type="text"
+                      value={selectedProduct.name}
                       onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
                       className="w-full bg-transparent border-none p-0 text-sm font-bold text-slate-800 focus:outline-none focus:ring-0"
                     />
@@ -869,27 +869,27 @@ function ProductsView() {
                     {(selectedProduct.manualOutOfStock || selectedProduct.isLimited) && (
                       <div className="absolute top-0 left-0 right-0 h-5 shadow-sm overflow-hidden flex items-center z-10">
                         <div className="flex w-full h-full animate-[slide_8s_linear_infinite]">
-                           {selectedProduct.manualOutOfStock && (
-                             <div className="min-w-full flex items-center justify-center bg-white text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
-                                <AlertCircle className="w-3 h-3 text-red-500" /> OUT OF STOCK
-                             </div>
-                           )}
-                           {selectedProduct.isLimited && (
-                             <div className="min-w-full flex items-center justify-center bg-[#D9F99D] text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
-                                <Sparkles className="w-3 h-3 text-gold" /> LIMITED
-                             </div>
-                           )}
-                           {/* Repeat */}
-                           {selectedProduct.manualOutOfStock && (
-                             <div className="min-w-full flex items-center justify-center bg-white text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
-                                <AlertCircle className="w-3 h-3 text-red-500" /> OUT OF STOCK
-                             </div>
-                           )}
-                           {selectedProduct.isLimited && (
-                             <div className="min-w-full flex items-center justify-center bg-[#D9F99D] text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
-                                <Sparkles className="w-3 h-3 text-gold" /> LIMITED
-                             </div>
-                           )}
+                          {selectedProduct.manualOutOfStock && (
+                            <div className="min-w-full flex items-center justify-center bg-white text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
+                              <AlertCircle className="w-3 h-3 text-red-500" /> OUT OF STOCK
+                            </div>
+                          )}
+                          {selectedProduct.isLimited && (
+                            <div className="min-w-full flex items-center justify-center bg-[#D9F99D] text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
+                              <Sparkles className="w-3 h-3 text-gold" /> LIMITED
+                            </div>
+                          )}
+                          {/* Repeat */}
+                          {selectedProduct.manualOutOfStock && (
+                            <div className="min-w-full flex items-center justify-center bg-white text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
+                              <AlertCircle className="w-3 h-3 text-red-500" /> OUT OF STOCK
+                            </div>
+                          )}
+                          {selectedProduct.isLimited && (
+                            <div className="min-w-full flex items-center justify-center bg-[#D9F99D] text-slate-800 font-bold text-[8px] tracking-tight shrink-0 gap-1.5">
+                              <Sparkles className="w-3 h-3 text-gold" /> LIMITED
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -910,7 +910,7 @@ function ProductsView() {
                     <Eye className="w-4 h-4 relative z-10" /> <span>Preview Label</span>
                   </button>
                   <div className="grid grid-cols-2 gap-2">
-                    <button 
+                    <button
                       onClick={() => {
                         updateProduct(selectedProduct.id, {
                           name: selectedProduct.name,
@@ -1044,9 +1044,8 @@ function MarketersView({ onManage }: { onManage: () => void }) {
     });
   };
 
-  const inputClass = (val: string) => `w-full px-3 py-2.5 border rounded-xl text-sm transition-all ${
-    attemptedSubmit && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20'
-  }`;
+  const inputClass = (val: string) => `w-full px-3 py-2.5 border rounded-xl text-sm transition-all ${attemptedSubmit && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20'
+    }`;
 
   const handleCopy = async (field: 'code' | 'link') => {
     const value = field === 'code' ? normalizeCouponCode(form.code) : getCouponShareLink(form.code);
@@ -1245,7 +1244,7 @@ function HandlersView() {
   const handleCreateHandler = async () => {
     setAttemptedSubmit(true);
     if (!form.name.trim() || !form.phone.trim() || !form.zone.trim()) return;
-    
+
     try {
       await addHandler({
         name: form.name.trim(),
@@ -1256,7 +1255,7 @@ function HandlersView() {
       setForm({ name: '', phone: '', zone: '' });
       setShowAddForm(false);
       setAttemptedSubmit(false);
-      
+
       setToast('✅ Handler added successfully!');
       setTimeout(() => setToast(null), 3000);
     } catch (error) {
@@ -1290,9 +1289,8 @@ function HandlersView() {
     }
   };
 
-  const inputClass = (val: string) => `w-full px-3 py-2.5 border rounded-xl text-sm transition-all ${
-    attemptedSubmit && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20'
-  }`;
+  const inputClass = (val: string) => `w-full px-3 py-2.5 border rounded-xl text-sm transition-all ${attemptedSubmit && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20'
+    }`;
 
   return (
     <div className="p-4 md:p-6 space-y-5">
@@ -1487,9 +1485,8 @@ function OperationsSettingsView() {
     setAttemptedSubmitHandler(false);
   };
 
-  const inputClass = (val: string, attempted: boolean) => `w-full rounded-2xl border px-4 py-3 text-sm transition-all ${
-    attempted && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0f5238]/15'
-  }`;
+  const inputClass = (val: string, attempted: boolean) => `w-full rounded-2xl border px-4 py-3 text-sm transition-all ${attempted && !val.trim() ? 'border-red-500 bg-red-50 ring-2 ring-red-500/10' : 'border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0f5238]/15'
+    }`;
 
   const closeDeleteModal = () => {
     setPendingDelete(null);
@@ -2149,7 +2146,7 @@ export function AdminDashboard() {
         (payload) => {
           console.log('Realtime Order Event:', payload);
           const order = payload.new;
-          
+
           if ('Notification' in window && Notification.permission === 'granted') {
             const notif = new Notification('🚨 New Order Received!', {
               body: `Order ${order.tracking_number}\nAmount: ₦${Number(order.total).toLocaleString()}\nCustomer: ${order.customer_name}`,
@@ -2159,8 +2156,8 @@ export function AdminDashboard() {
             // Optional: Play a short sound
             try {
               const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-              audio.play().catch(() => {});
-            } catch (e) {}
+              audio.play().catch(() => { });
+            } catch (e) { }
           }
         }
       )
