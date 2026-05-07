@@ -1,0 +1,636 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Haify Trap Design System */
+    --background: 150 20% 98%;
+    --foreground: 165 10% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 165 10% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 165 10% 11%;
+    --primary: 153 68% 19%;
+    --primary-foreground: 0 0% 100%;
+    --primary-container: 153 40% 30%;
+    --secondary: 158 100% 21%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 150 14% 95%;
+    --muted-foreground: 165 5% 40%;
+    --accent: 43 79% 46%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 10% 90%;
+    --input: 150 10% 94%;
+    --ring: 153 68% 19%;
+    --radius: 0.75rem;
+    --sidebar-background: 153 68% 12%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 153 68% 19%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 153 40% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 153 40% 20%;
+    --sidebar-ring: 153 68% 30%;
+  }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface text-on-surface font-body antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+}
+
+@layer components {
+  /* Button Styles */
+  .btn-primary {
+    @apply relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3 bg-forest text-white font-semibold rounded-full transition-all duration-300 z-0 border border-forest;
+    @apply hover:text-white hover:shadow-glow;
+    @apply active:scale-95;
+    min-height: 48px;
+  }
+
+  .btn-primary::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0 bg-gold transition-all duration-350 ease-button z-[-1];
+  }
+
+  .btn-primary:hover::after {
+    @apply h-full;
+  }
+
+  .btn-secondary {
+    @apply relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-outline-variant text-forest font-semibold rounded-full transition-all duration-300 z-0;
+    @apply hover:text-white;
+    @apply active:scale-95;
+    min-height: 48px;
+  }
+
+  .btn-secondary::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0 bg-gold transition-all duration-350 ease-button z-[-1];
+  }
+
+  .btn-secondary:hover::after {
+    @apply h-full;
+  }
+
+  .btn-gold {
+    @apply relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold text-white font-semibold rounded-full transition-all duration-300 z-0 border border-gold;
+    @apply hover:text-white hover:shadow-lg;
+    @apply active:scale-95;
+    min-height: 48px;
+  }
+
+  .btn-gold::after, .btn-gold-inverse::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0 bg-forest transition-all duration-350 ease-button z-[-1];
+  }
+
+  .btn-gold:hover::after {
+    @apply h-full;
+  }
+
+  /* Global Button Animation Utility for raw <button> elements */
+  button:not(.no-anim), .btn-anim, .btn-gold-inverse {
+    @apply relative overflow-hidden transition-colors duration-300 z-0;
+  }
+
+  button:not(.no-anim):hover, .btn-anim:hover, .btn-gold-inverse:hover {
+    @apply text-white !important;
+  }
+
+  button:not(.no-anim)::after, .btn-anim::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0 bg-gold transition-all duration-350 ease-button z-[-1];
+  }
+
+  button:not(.no-anim):hover::after, .btn-anim:hover::after {
+    @apply h-full;
+  }
+
+  button:not(.no-anim) span, .btn-anim span, .btn-gold-inverse span {
+    @apply relative z-[1];
+  }
+
+  /* Enhanced Button Tap Animations */
+  .btn-tap {
+    @apply relative overflow-hidden;
+  }
+
+  .btn-tap::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-tap:active {
+    transform: scale(0.95);
+    animation: tap-ripple 0.6s ease-out;
+  }
+
+  .btn-tap:active::before {
+    opacity: 1;
+  }
+
+  .btn-tap-primary:active {
+    background-color: #0f5238 !important;
+    color: #ffffff !important;
+  }
+
+  .btn-tap-secondary:active {
+    background-color: #e8f5e9 !important;
+    color: #0f5238 !important;
+    border-color: #0f5238 !important;
+  }
+
+  .btn-tap-gold:active {
+    background-color: #b8860b !important;
+    color: #ffffff !important;
+  }
+
+  .btn-tap-forest:active {
+    background-color: #0f5238 !important;
+    color: #ffffff !important;
+  }
+
+  .btn-tap-fresh:active {
+    background-color: #2d6a4f !important;
+    color: #ffffff !important;
+  }
+
+  /* Card Styles */
+  .card-product {
+    @apply bg-white rounded-2xl overflow-hidden transition-all duration-300;
+    @apply hover:shadow-card hover:-translate-y-1;
+  }
+
+  .card-feature {
+    @apply bg-white rounded-2xl p-6 transition-all duration-300;
+    @apply hover:shadow-soft;
+  }
+
+  /* Input Styles */
+  .input-modern {
+    @apply w-full px-4 py-3 bg-surface-high rounded-xl border-0 text-on-surface placeholder:text-muted-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-forest/20 focus:bg-white;
+    @apply transition-all duration-200;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl;
+  }
+
+  .glass-dark {
+    @apply bg-forest/90 backdrop-blur-xl;
+  }
+
+  /* Section Styles */
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-24;
+  }
+
+  /* Label Styles */
+  .label-sm {
+    @apply text-xs font-semibold uppercase tracking-widest text-muted-foreground;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-forest to-fresh bg-clip-text text-transparent;
+  }
+
+  /* Lush Gradient Background */
+  .lush-gradient {
+    background: linear-gradient(135deg, #0f5238 0%, #2d6a4f 100%);
+  }
+
+  /* Status Badges */
+  .badge-success {
+    @apply inline-flex items-center gap-1 px-3 py-1 bg-fresh/10 text-fresh text-sm font-medium rounded-full;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1 px-3 py-1 bg-gold/10 text-gold text-sm font-medium rounded-full;
+  }
+
+  .badge-info {
+    @apply inline-flex items-center gap-1 px-3 py-1 bg-forest/10 text-forest text-sm font-medium rounded-full;
+  }
+
+  /* No-line separators - use background shifts instead of borders */
+  .separator-soft {
+    @apply h-px bg-gradient-to-r from-transparent via-outline-variant to-transparent;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text balance for better typography */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Animation delays */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  /* Page enter animation — applied globally via App.tsx PageWrapper */
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Tap ripple animation */
+  @keyframes tap-ripple {
+    0% {
+      transform: scale(0.95);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Entrance Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in-left {
+    animation: fadeInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in-right {
+    animation: fadeInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+
+  /* Smooth Text Cycling */
+  @keyframes textCycleIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes textCycleOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-15px); }
+  }
+
+  .animate-text-in {
+    animation: textCycleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-text-out {
+    animation: textCycleOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Scroll Reveal Utilities */
+  .scroll-reveal {
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+  }
+
+  .reveal-up { transform: translateY(30px); }
+  .reveal-down { transform: translateY(-30px); }
+  .reveal-left { transform: translateX(-30px); }
+  .reveal-right { transform: translateX(30px); }
+
+  .scroll-reveal.reveal {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  /* SVG Wave Gap Fixes */
+  .wave-container, .wave-container *, .wave-container svg, .wave-container svg * {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    text-decoration: none !important;
+  }
+
+  .wave-container {
+    display: block !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    overflow: visible !important;
+  }
+
+  .wave-container svg {
+    display: block !important;
+    vertical-align: bottom !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .hero-background {
+    background-image: url('/products/BACKGROUND IMAGE.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  @media (max-width: 768px) {
+    .hero-background {
+      background-image: url('/mobile responsive bg.png');
+      background-position: 85% center;
+      background-size: 110% auto;
+    }
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   APPLE DESIGN SYSTEM LAYER
+   Overrides: font-stack, type scale, spacing, border-radius, button shapes.
+   Does NOT touch: colors, backgrounds, images, layout, or any existing content.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Font Stack — SF Pro on Apple, Inter on other platforms */
+
+:root {
+  --apple-font: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+}
+
+/* Apply font stack globally without touching other properties */
+html, body, input, textarea, select, button {
+  font-family: var(--apple-font) !important;
+}
+
+/* 2. Typography Scale */
+
+/* Body: 17px / 1.47 / weight 400 / letter-spacing -0.374px */
+body {
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  line-height: 1.47 !important;
+  letter-spacing: -0.374px !important;
+}
+
+/* Headings: weight 600, tight letter-spacing */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600 !important;
+  letter-spacing: -0.374px !important;
+}
+
+/* Remove font-weight: 500 — enforce weight ladder 300/400/600/700 only */
+/* Target the most common Tailwind medium-weight classes */
+.font-medium {
+  font-weight: 400 !important;
+}
+.font-semibold {
+  font-weight: 600 !important;
+}
+.font-bold {
+  font-weight: 700 !important;
+}
+.font-black {
+  font-weight: 900 !important;
+}
+
+/* 3. Card Borders — 1px solid rgba(0,0,0,0.08), no shadow, no glow */
+.card-product,
+.card-feature,
+[class*="rounded-2xl"],
+[class*="rounded-3xl"],
+[class*="rounded-xl"] {
+  /* Only add border if element has a bg-white class (cards) */
+}
+
+/* Global card border rule: apply to known card containers */
+.card-product,
+.card-feature {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
+}
+
+/* 4. Button Shapes & Padding */
+
+/* Primary pill buttons */
+.btn-primary,
+.btn-secondary,
+.btn-gold {
+  border-radius: 9999px !important;
+  padding: 11px 22px !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.374px !important;
+}
+
+/* All button active press: scale(0.95) micro-interaction */
+button:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-gold:active,
+.btn-anim:active,
+[role="button"]:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* 5. Input Focus: 2px solid with accent color */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-width: 2px !important;
+}
+
+/* 6. Spacing — Section vertical padding: 80px */
+.section-padding {
+  /* Only horizontal padding should be global, vertical should be per-section */
+}
+
+/* Animated Strike-through */
+@keyframes strike {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.strike-anim {
+  position: relative;
+  display: inline-block;
+  text-decoration: none !important;
+}
+
+.strike-anim::after {
+  content: '';
+  position: absolute;
+  top: 55%;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: #ef4444; /* red-500 */
+  animation: strike 0.5s ease-out forwards;
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 3s infinite ease-in-out;
+}
