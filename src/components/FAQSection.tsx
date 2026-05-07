@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 
 const faqData = [
   {
-    question: "Is Haify Trap safe for my family and pets?",
+    question: "Is Haifly Trap safe for my family and pets?",
     answer: "Yes, absolutely! Our products, including the Broadkiller Surface Spray, are formulated with a 100% botanical, non-toxic, and odourless base. They are specifically designed to be safe around humans, dogs, cats, rabbits, and even horses."
   },
   {
@@ -15,24 +15,24 @@ const faqData = [
     answer: "Yes, we deliver nationwide. We offer same-day delivery within the Lagos metropolis, and 24-48 hours delivery to other states across Nigeria."
   },
   {
-    question: "What makes Haify Trap different from other brands?",
-    answer: "Haify Trap pioneered Nigeria's first commercially viable housefly trap and the world's first anti-maggot solution. Our products are odourless, botanical, and effective, offering a premium alternative to harsh chemical insecticides."
+    question: "What makes Haifly Trap different from other brands?",
+    answer: "Haifly Trap pioneered Nigeria's first commercially viable housefly trap and the world's first anti-maggot solution. Our products are odourless, botanical, and effective, offering a premium alternative to harsh chemical insecticides."
   },
   {
     question: "Can I use the Broadkiller spray on my indoor plants?",
     answer: "Yes, our formula is gentle enough to be used on and around plants. It effectively manages houseflies without harming your greenery, making it ideal for both indoor gardens and outdoor landscaping."
   },
   {
-    question: "Is Haify Trap suitable for stables and horses?",
-    answer: "Yes, Haify Trap is ideal for stables and equestrian environments. Our botanical formula is 100% safe for horses and effectively controls stable flies and mosquitoes without the use of harsh chemicals that could irritate sensitive animals."
+    question: "Is Haifly Trap suitable for stables and horses?",
+    answer: "Yes, Haifly Trap is ideal for stables and equestrian environments. Our botanical formula is 100% safe for horses and effectively controls stable flies and mosquitoes without the use of harsh chemicals that could irritate sensitive animals."
   },
   {
     question: "Do you provide solutions for hotels, lounges, and restaurants?",
     answer: "Absolutely. We specialize in premium housefly control for hospitality and commercial spaces. Our odourless, non-toxic solutions allow you to maintain a fly-free environment in lounges, hotel lobbies, and dining areas without any disruptive chemical smells or safety concerns for your guests."
   },
   {
-    question: "Is Haify Trap only for houseflies?",
-    answer: "While Haify Trap is specifically engineered as a premium solution for housefly control, its botanical formula is also highly effective against other flying and crawling insects like mosquitoes, cockroaches, and bedbugs. However, our primary mission remains providing the most effective, eco-friendly defense against houseflies in Nigeria."
+    question: "Is Haifly Trap only for houseflies?",
+    answer: "While Haifly Trap is specifically engineered as a premium solution for housefly control, its botanical formula is also highly effective against other flying and crawling insects like mosquitoes, cockroaches, and bedbugs. However, our primary mission remains providing the most effective, eco-friendly defense against houseflies in Nigeria."
   }
 ];
 

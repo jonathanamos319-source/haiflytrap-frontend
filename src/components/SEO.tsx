@@ -5,21 +5,21 @@ export function SEO() {
   const { currentView, selectedProduct } = useStore();
 
   useEffect(() => {
-    let title = 'Haify Trap - Premium Eco-Friendly Housefly Control';
-    let description = 'Protect your home from flies with Haify Trap botanical solutions.';
+    let title = 'Haifly Trap - Premium Eco-Friendly Housefly Control';
+    let description = 'Protect your home from flies with Haifly Trap botanical solutions.';
 
     if (currentView === 'home') {
-      title = 'Haify Trap | Home';
-      description = 'Welcome to Haify Trap. Premium eco-friendly housefly control solutions.';
+      title = 'Haifly Trap | Home';
+      description = 'Welcome to Haifly Trap. Premium eco-friendly housefly control solutions.';
     } else if (currentView === 'shop') {
-      title = 'Shop | Haify Trap';
+      title = 'Shop | Haifly Trap';
       description = 'Browse our collection of premium eco-friendly housefly control solutions.';
     } else if (currentView === 'product' && selectedProduct) {
-      title = `${selectedProduct.name} | Haify Trap`;
+      title = `${selectedProduct.name} | Haifly Trap`;
       description = selectedProduct.description || description;
     } else if (currentView === 'blog') {
-      title = 'Blog | Haify Trap';
-      description = 'Read the latest news and tips from Haify Trap.';
+      title = 'Blog | Haifly Trap';
+      description = 'Read the latest news and tips from Haifly Trap.';
     }
 
     document.title = title;

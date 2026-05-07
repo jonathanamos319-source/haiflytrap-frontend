@@ -50,7 +50,7 @@ export function BlogDetailPage() {
   useEffect(() => {
     if (!selectedBlog) return;
 
-    const brandName = 'Haify Trap';
+    const brandName = 'Haifly Trap';
     const title = `${selectedBlog.title} | ${brandName}`;
     const description = selectedBlog.excerpt || selectedBlog.content.substring(0, 155) + '...';
     const keywords = `${selectedBlog.category || 'Housefly Control'}, ${selectedBlog.tags?.join(', ') || 'Boardkiller'}`;
@@ -250,7 +250,7 @@ export function BlogDetailPage() {
               </div>
 
               <button
-                onClick={() => window.open('https://wa.me/2348031301311?text=Hi%2C%20I%20am%20interested%20in%20becoming%20a%20Haify%20Trap%20distributor.', '_blank')}
+                onClick={() => window.open('https://wa.me/2348031301311?text=Hi%2C%20I%20am%20interested%20in%20becoming%20a%20Haifly%20Trap%20distributor.', '_blank')}
                 className="group bg-[#25D366] text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-3 hover:bg-[#20ba5a] active:scale-[0.98] shadow-xl w-full md:w-auto flex-shrink-0"
               >
                 <svg 

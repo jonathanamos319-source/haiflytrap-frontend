@@ -43,7 +43,7 @@ const orderTabs = ['All', 'Delivered', 'Processing', 'Pending', 'In-Transit'] as
 
 function downloadTableAsPDF(quarter: string) {
   const rows = revenueData[quarter];
-  const html = `<html><head><title>Revenue Report - ${quarter}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111}h1{font-size:22px;margin-bottom:4px}p{color:#666;font-size:13px;margin-bottom:24px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px 12px;background:#f5f5f5;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#555}td{padding:12px;border-bottom:1px solid #eee;font-size:14px}.up{color:#16a34a}.down{color:#dc2626}tfoot td{font-weight:bold;background:#f9f9f9}</style></head><body><h1>Revenue Report — ${quarter}</h1><p>Generated on ${new Date().toLocaleDateString('en-NG', { dateStyle: 'long' })} · Haify Trap Admin</p><table><thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg. Value</th><th>Growth</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.month}</td><td>${r.orders}</td><td>${r.revenue}</td><td>${r.avg}</td><td class="${r.trend}">${r.growth}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td>${rows.reduce((s, r) => s + r.orders, 0)}</td><td colspan="3">&mdash;</td></tr></tfoot></table></body></html>`;
+  const html = `<html><head><title>Revenue Report - ${quarter}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111}h1{font-size:22px;margin-bottom:4px}p{color:#666;font-size:13px;margin-bottom:24px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px 12px;background:#f5f5f5;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#555}td{padding:12px;border-bottom:1px solid #eee;font-size:14px}.up{color:#16a34a}.down{color:#dc2626}tfoot td{font-weight:bold;background:#f9f9f9}</style></head><body><h1>Revenue Report — ${quarter}</h1><p>Generated on ${new Date().toLocaleDateString('en-NG', { dateStyle: 'long' })} · Haifly Trap Admin</p><table><thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg. Value</th><th>Growth</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.month}</td><td>${r.orders}</td><td>${r.revenue}</td><td>${r.avg}</td><td class="${r.trend}">${r.growth}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td>${rows.reduce((s, r) => s + r.orders, 0)}</td><td colspan="3">&mdash;</td></tr></tfoot></table></body></html>`;
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
@@ -1760,7 +1760,7 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Performance Overview</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Real-time metrics from the Haify Trap ecosystem</p>
+          <p className="text-xs text-slate-400 mt-0.5">Real-time metrics from the Haifly Trap ecosystem</p>
         </div>
         <button className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0f5238] text-white rounded-xl text-xs font-semibold hover:opacity-90 self-start sm:self-auto">
           <FileDown className="w-3.5 h-3.5" /> Export Report
@@ -1799,7 +1799,7 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-slate-50">
             <div>
               <h3 className="text-sm font-bold text-slate-800">Monthly Revenue</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Haify Trap sales breakdown</p>
+              <p className="text-xs text-slate-400 mt-0.5">Haifly Trap sales breakdown</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex gap-1 bg-slate-50 rounded-xl p-1">
@@ -2084,7 +2084,7 @@ function SidebarContent({ activeSidebarItem, setActiveSidebarItem, setCurrentVie
           <span className="font-bold text-[#C9A84C] text-lg">H</span>
         </div>
         <div>
-          <p className="font-bold text-slate-800 text-sm leading-tight">Haify Trap</p>
+          <p className="font-bold text-slate-800 text-sm leading-tight">Haifly Trap</p>
           <p className="text-[10px] text-slate-400 font-medium tracking-widest uppercase">Admin Portal</p>
         </div>
       </button>
@@ -2189,7 +2189,7 @@ export function AdminDashboard() {
         <div className="mt-auto pt-4 border-t border-slate-100">
           <div className="flex items-center gap-3 px-1 py-2">
             <div className="w-8 h-8 rounded-full bg-[#0f5238] text-white flex items-center justify-center text-xs font-bold">AH</div>
-            <div><p className="text-xs font-semibold text-slate-700">Admin Haify</p><p className="text-[10px] text-slate-400">Super Administrator</p></div>
+            <div><p className="text-xs font-semibold text-slate-700">Admin Haifly</p><p className="text-[10px] text-slate-400">Super Administrator</p></div>
           </div>
         </div>
       </aside>
@@ -2201,7 +2201,7 @@ export function AdminDashboard() {
           <div className="flex items-center gap-3 px-1 py-2">
             <div className="w-8 h-8 rounded-full bg-[#0f5238] text-white flex items-center justify-center text-xs font-bold">AH</div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-slate-700 truncate">Admin Haify</p>
+              <p className="text-xs font-semibold text-slate-700 truncate">Admin Haifly</p>
               <p className="text-[10px] text-slate-400 truncate">Super Administrator</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />

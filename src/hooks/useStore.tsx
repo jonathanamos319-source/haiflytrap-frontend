@@ -130,13 +130,13 @@ const readCouponFromLocation = () => {
 };
 
 const readTrackedOrderFromStorage = (): Order | null => {
-  const saved = localStorage.getItem('haify_current_order');
+  const saved = localStorage.getItem('haifly_current_order');
   if (!saved) return null;
 
   try {
     return JSON.parse(saved) as Order;
   } catch {
-    localStorage.removeItem('haify_current_order');
+    localStorage.removeItem('haifly_current_order');
     return null;
   }
 };
@@ -185,7 +185,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     category: 'organic-sprays',
     price: 250,
     minQuantity: 10,
-    image: 'https://res.cloudinary.com/decnpcsss/image/upload/v1778090660/haify-trap-products/cyzloowys7vwtcmdqglz.jpg',
+    image: 'https://res.cloudinary.com/decnpcsss/image/upload/v1778090660/haifly-trap-products/cyzloowys7vwtcmdqglz.jpg',
     description: 'Travel-sized 30ML pocket spray. Perfect for on-the-go protection against houseflies and mosquitoes. Highly effective botanical formula in a compact size.',
     rating: 4.9,
     reviews: 85,
@@ -216,13 +216,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('haify_orders');
+    const saved = localStorage.getItem('haifly_orders');
     return saved ? JSON.parse(saved) : [];
   });
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [currentOrder, setCurrentOrderState] = useState<Order | null>(() => readTrackedOrderFromStorage());
   const [activeCouponCode, setActiveCouponCodeState] = useState(() => {
-    return readCouponFromLocation() || localStorage.getItem('haify_active_coupon') || '';
+    return readCouponFromLocation() || localStorage.getItem('haifly_active_coupon') || '';
   });
 
   // ── Auth ──
@@ -468,7 +468,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const tempToken = localStorage.getItem('temp_admin_token');
       const isAdminRoute = path.startsWith('/admin') || path.startsWith('/marketers');
       const isHandlerRoute = path.startsWith('/handler');
-      const storedOrders = localStorage.getItem('haify_orders');
+      const storedOrders = localStorage.getItem('haifly_orders');
 
       const [adminSession, handlerSession] = await Promise.all([
         supabaseAdmin.auth.getSession(),
@@ -585,29 +585,29 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     
     fetchAdminData();
     
-    window.addEventListener('haify_admin_login', fetchAdminData);
-    return () => window.removeEventListener('haify_admin_login', fetchAdminData);
+    window.addEventListener('haifly_admin_login', fetchAdminData);
+    return () => window.removeEventListener('haifly_admin_login', fetchAdminData);
   }, []);
 
   // ── Persist active coupon code ──
   useEffect(() => {
     if (activeCouponCode) {
-      localStorage.setItem('haify_active_coupon', activeCouponCode);
+      localStorage.setItem('haifly_active_coupon', activeCouponCode);
     } else {
-      localStorage.removeItem('haify_active_coupon');
+      localStorage.removeItem('haifly_active_coupon');
     }
   }, [activeCouponCode]);
 
   // ── Persist orders locally for track-order page ──
   useEffect(() => {
-    localStorage.setItem('haify_orders', JSON.stringify(orders));
+    localStorage.setItem('haifly_orders', JSON.stringify(orders));
   }, [orders]);
 
   useEffect(() => {
     if (currentOrder) {
-      localStorage.setItem('haify_current_order', JSON.stringify(currentOrder));
+      localStorage.setItem('haifly_current_order', JSON.stringify(currentOrder));
     } else {
-      localStorage.removeItem('haify_current_order');
+      localStorage.removeItem('haifly_current_order');
     }
   }, [currentOrder]);
 

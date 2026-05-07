@@ -123,7 +123,7 @@ export function HomePage() {
 
         {/* Decorative Leaf Branch */}
         <div className="absolute top-10 -right-16 w-80 h-80 md:w-96 md:h-96 opacity-30 pointer-events-none rotate-45 select-none z-10">
-          <img src="/products/image%206.png" alt="Haify Trap decorative" loading="lazy" className="w-full h-full object-contain" />
+          <img src="/products/image%206.png" alt="Haifly Trap decorative" loading="lazy" className="w-full h-full object-contain" />
         </div>
 
         <div className="section-padding relative z-10">
@@ -236,7 +236,7 @@ export function HomePage() {
 
         {/* Decorative Leaf Accents */}
         <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.05] pointer-events-none -rotate-12 select-none z-0">
-          <img src="/products/image%206.png" alt="Haify Trap decorative" loading="lazy" className="w-full h-full object-contain" />
+          <img src="/products/image%206.png" alt="Haifly Trap decorative" loading="lazy" className="w-full h-full object-contain" />
         </div>
 
         <div className="section-padding relative z-10">
@@ -268,7 +268,7 @@ export function HomePage() {
               <div className="fact-container flex items-center justify-center">
                 <p className="text-base md:text-lg text-forest leading-relaxed font-body">
                   Did you know a single housefly can carry thousands of harmful bacteria from waste straight to your food and surfaces?
-                  <span className="text-fresh font-bold"> Haify Trap is specifically engineered to stop this threat instantly</span> — providing Nigeria's most effective botanical, odourless defense against houseflies while remaining safe for your family.
+                  <span className="text-fresh font-bold"> Haifly Trap is specifically engineered to stop this threat instantly</span> — providing Nigeria's most effective botanical, odourless defense against houseflies while remaining safe for your family.
                 </p>
               </div>
             </div>
@@ -317,7 +317,7 @@ export function HomePage() {
             <Sparkles className="absolute top-1/2 left-1/3 w-24 h-24 rotate-[20deg]" />
           </div>
           {/* image6 moved above the opacity overlay */}
-          <img src="/products/image%206.png" alt="Haify Trap decorative" loading="lazy" className="absolute bottom-[-10%] -right-16 w-64 h-64 rotate-[-30deg] opacity-20 z-10" />
+          <img src="/products/image%206.png" alt="Haifly Trap decorative" loading="lazy" className="absolute bottom-[-10%] -right-16 w-64 h-64 rotate-[-30deg] opacity-20 z-10" />
         </div>
 
         <div className="section-padding relative z-10">
@@ -505,7 +505,7 @@ export function HomePage() {
               {/* Map Iframe */}
               <div className="w-full lg:w-2/3 h-[300px] lg:h-[400px]">
                 <iframe
-                  title="Haify Trap Head Office"
+                  title="Haifly Trap Head Office"
                   src="https://maps.google.com/maps?q=Eastline%20Complex,%20Abraham%20Adesanya,%20Ajah,%20Lagos&t=&z=14&ie=UTF8&iwloc=&output=embed"
                   width="100%"
                   height="100%"
@@ -528,7 +528,7 @@ export function HomePage() {
         <LeavesBackground opacity={0.1} />
         {/* Decorative Leaf Branch - Subtle Top Corner */}
         <div className="absolute -top-10 -left-10 w-48 h-48 opacity-10 pointer-events-none rotate-180 select-none z-10">
-          <img src="/products/image%206.png" alt="Haify Trap decorative" loading="lazy" className="w-full h-full object-contain" />
+          <img src="/products/image%206.png" alt="Haifly Trap decorative" loading="lazy" className="w-full h-full object-contain" />
         </div>
 
         <div className="section-padding text-center instagram-content relative scroll-reveal reveal-up">

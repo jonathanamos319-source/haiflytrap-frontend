@@ -15,7 +15,7 @@ const row1Testimonials = [
     location: 'Lagos',
     handle: '@oluwale_a',
     rating: 5,
-    text: "The Broadkiller is simply incredible. I've tried many brands in Lagos, but Haify Trap actually delivers. My home is completely fly-free.",
+    text: "The Broadkiller is simply incredible. I've tried many brands in Lagos, but Haifly Trap actually delivers. My home is completely fly-free.",
     verified: true,
   },
   {
@@ -72,7 +72,7 @@ const row2Testimonials = [
     location: 'Enugu',
     handle: '@mama_safety',
     rating: 5,
-    text: "Safe for the kids and pets. That's my number one priority and Haify delivers on that promise every single time.",
+    text: "Safe for the kids and pets. That's my number one priority and Haifly delivers on that promise every single time.",
     verified: true,
   },
   {
@@ -239,10 +239,10 @@ export function ReviewsPage() {
       <section className="relative bg-surface border-b border-outline-variant pb-20 md:pb-32 overflow-hidden">
         {/* Background Tree Branch */}
         <div className="absolute top-[-5%] -right-20 w-[600px] h-[600px] opacity-[0.08] pointer-events-none select-none z-0">
-          <img src="/products/image%206.png" alt="Haify Trap graphic" loading="lazy" className="w-full h-full object-contain rotate-[-15deg]" />
+          <img src="/products/image%206.png" alt="Haifly Trap graphic" loading="lazy" className="w-full h-full object-contain rotate-[-15deg]" />
         </div>
         <div className="absolute bottom-[-10%] -left-20 w-[400px] h-[400px] opacity-[0.05] pointer-events-none select-none z-0">
-          <img src="/products/image%206.png" alt="Haify Trap graphic" loading="lazy" className="w-full h-full object-contain rotate-[165deg]" />
+          <img src="/products/image%206.png" alt="Haifly Trap graphic" loading="lazy" className="w-full h-full object-contain rotate-[165deg]" />
         </div>
 
         <div className="section-padding py-12 md:py-20 relative z-10">
@@ -258,7 +258,7 @@ export function ReviewsPage() {
 
                 {/* Left Eye */}
                 <div className="absolute top-[8%] left-[26%] w-[22%] h-[18%] rounded-[40%_60%_50%_50%] overflow-hidden shadow-lg z-30 animate-fly-antenna-1 hover:scale-110 transition-transform duration-300 border-[3px] border-white">
-                  <img src="https://res.cloudinary.com/decnpcsss/image/upload/v1778090660/haify-trap-products/cyzloowys7vwtcmdqglz.jpg" alt="Broadkiller Pocket Spray" className="w-full h-full object-cover" />
+                  <img src="https://res.cloudinary.com/decnpcsss/image/upload/v1778090660/haifly-trap-products/cyzloowys7vwtcmdqglz.jpg" alt="Broadkiller Pocket Spray" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Right Eye */}
@@ -274,7 +274,7 @@ export function ReviewsPage() {
 
                 {/* Lower Abdomen (Tail) */}
                 <div className="absolute bottom-[8%] left-1/2 -translate-x-1/2 w-[20%] h-[25%] rounded-[50%_50%_45%_45%] overflow-hidden shadow-xl z-10 animate-fly-antenna-1 hover:scale-[1.05] transition-transform duration-300 border-[3px] border-white group">
-                  <img src="/images/a carton.png" alt="Haify Carton" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <img src="/images/a carton.png" alt="Haifly Carton" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 </div>
 
                 {/* Left Wing (Angled backwards) */}
@@ -314,7 +314,7 @@ export function ReviewsPage() {
               </h1>
 
               <p className="text-muted-foreground font-bold text-base sm:text-lg lg:text-xl max-w-xl mb-6 lg:mb-8 leading-snug sm:leading-relaxed">
-                Welcome to the official Haify Trap Community. We are a diverse alliance of homes and businesses dedicated to safe, botanical housefly control experiences—from homeowners to professional facility managers.
+                Welcome to the official Haifly Trap Community. We are a diverse alliance of homes and businesses dedicated to safe, botanical housefly control experiences—from homeowners to professional facility managers.
               </p>
 
               <div className="flex items-center justify-center lg:justify-start gap-2 text-forest/70 text-[10px] font-black uppercase tracking-widest mb-6">
@@ -456,7 +456,7 @@ export function ReviewsPage() {
 
                 <div className="space-y-3 text-black/80 text-sm md:text-base lg:text-lg leading-relaxed">
                   <p>
-                    Searching for the <span className="font-bold text-forest">best housefly control in Lagos</span>? Haify Trap provides expert, high-grade housefly management solutions tailored for Nigerian homes and businesses.
+                    Searching for the <span className="font-bold text-forest">best housefly control in Lagos</span>? Haifly Trap provides expert, high-grade housefly management solutions tailored for Nigerian homes and businesses.
                   </p>
                   <p>
                     Our <span className="text-fresh font-bold">professional fumigation services</span> utilize safe, non-toxic, botanical treatments that are effective against termites, bed bugs, cockroaches, and rodents.
@@ -496,7 +496,7 @@ export function ReviewsPage() {
           <div className="max-w-4xl mx-auto text-center mb-10">
             <span className="label-sm mb-3 block text-fresh tracking-[0.2em]">VERY EASY TO USE</span>
             <h2 className="text-3xl md:text-5xl font-display font-black text-white mb-4">
-              How to Use {instructionType === 'spray' ? <><span className="text-gold">Broadkiller</span> Spray</> : <><span className="text-gold">Haify</span> Trap</>}
+              How to Use {instructionType === 'spray' ? <><span className="text-gold">Broadkiller</span> Spray</> : <><span className="text-gold">Haifly</span> Trap</>}
             </h2>
             <p className="text-white/70 text-base md:text-lg leading-relaxed">
               {instructionType === 'spray' 
@@ -558,7 +558,7 @@ export function ReviewsPage() {
                       <span className="w-8 h-px bg-gold" /> ADD REFILL
                     </h3>
                     <p className="text-white/60 leading-relaxed text-sm md:text-base">
-                      Pour the Haify Trap refill into the trap container.
+                      Pour the Haifly Trap refill into the trap container.
                     </p>
                   </div>
                 </div>
@@ -626,7 +626,7 @@ export function ReviewsPage() {
                 Hear from Our <span className="text-gold">Satisfied Customers</span>
               </h2>
               <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                Join thousands of homeowners who trust Haify Trap for effective, non-toxic housefly control.
+                Join thousands of homeowners who trust Haifly Trap for effective, non-toxic housefly control.
               </p>
 
               <button
@@ -643,7 +643,7 @@ export function ReviewsPage() {
               <div className="flex flex-col gap-3">
                 <Quote className="w-8 h-8 text-fresh fill-fresh opacity-20 -ml-1" />
                 <p className="text-sm md:text-lg text-forest/90 leading-relaxed font-medium italic">
-                  "Haify Trap helped my business grow by providing a fly-free environment that my customers love. Effective and safe for everyone."
+                  "Haifly Trap helped my business grow by providing a fly-free environment that my customers love. Effective and safe for everyone."
                 </p>
                 <div className="mt-1">
                   <p className="font-bold text-forest text-base">Chinwekene Oyigbo</p>
@@ -655,7 +655,7 @@ export function ReviewsPage() {
               <div className="flex flex-col gap-3">
                 <Quote className="w-8 h-8 text-fresh fill-fresh opacity-20 -ml-1" />
                 <p className="text-sm md:text-lg text-forest/90 leading-relaxed font-medium italic">
-                  "The Haify Trap App and delivery have been a game-changer for our home safety. No more worrying about mosquitoes."
+                  "The Haifly Trap App and delivery have been a game-changer for our home safety. No more worrying about mosquitoes."
                 </p>
                 <div className="mt-1">
                   <p className="font-bold text-forest text-base">Sola Ogunleye</p>
@@ -756,7 +756,7 @@ export function ReviewsPage() {
             Ready to Protect Your <span ref={wordRef} className="inline-block text-gold-light ml-1">{words[wordIndex]}</span>
           </h2>
           <p className="text-white/70 max-w-lg mx-auto mb-8">
-            Join 50,000+ Nigerian families who trust Haify Trap for eco-friendly housefly control.
+            Join 50,000+ Nigerian families who trust Haifly Trap for eco-friendly housefly control.
           </p>
           {isBackendDown ? (
             <a

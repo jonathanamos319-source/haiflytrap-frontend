@@ -118,7 +118,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/50 text-sm">
-            © 2026 Haify Trap. Naturally Powerful Insecticide. | NAFDAC: A10-101283
+            © 2026 Haifly Trap. Naturally Powerful Insecticide. | NAFDAC: A10-101283
           </p>
           <div className="flex items-center gap-4">
             <span className="text-white/50 text-xs">Secured by</span>

@@ -11,7 +11,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabaseAdmin = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storageKey: 'haify_admin_session',
+    storageKey: 'haifly_admin_session',
     persistSession: true,
     autoRefreshToken: true,
   }
@@ -19,7 +19,7 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseAnonKey, {
 
 export const supabaseHandler = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storageKey: 'haify_handler_session',
+    storageKey: 'haifly_handler_session',
     persistSession: true,
     autoRefreshToken: true,
   }
@@ -27,7 +27,7 @@ export const supabaseHandler = createClient(supabaseUrl, supabaseAnonKey, {
 
 export const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storageKey: 'haify_user_session',
+    storageKey: 'haifly_user_session',
     persistSession: true,
     autoRefreshToken: true,
   }

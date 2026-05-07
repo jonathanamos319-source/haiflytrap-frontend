@@ -186,7 +186,7 @@ export function HandlerPortal() {
                 <Menu className="w-5 h-5 text-slate-600" />
               </button>
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-forest">Haify Trap</span>
+                <span className="font-display font-bold text-forest">Haifly Trap</span>
               </div>
             </div>
             <div className="flex items-center gap-4">

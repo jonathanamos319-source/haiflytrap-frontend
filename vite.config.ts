@@ -16,8 +16,8 @@ export default defineConfig({
       filename: 'sw.ts',
       injectRegister: false, // We will handle registration manually in App.tsx
       manifest: {
-        name: 'Haify Trap',
-        short_name: 'Haify',
+        name: 'Haifly Trap',
+        short_name: 'Haifly',
         description: 'Premium non-toxic housefly control solutions.',
         theme_color: '#0f5238',
         background_color: '#ffffff',

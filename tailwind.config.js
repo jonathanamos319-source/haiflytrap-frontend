@@ -49,7 +49,7 @@ module.exports = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Haify Trap Brand Colors
+        // Haifly Trap Brand Colors
         forest: {
           DEFAULT: "#0f5238",
           light: "#2d6a4f",

@@ -57,7 +57,7 @@ export function LoginPage() {
       
       // We need to trigger a re-fetch of admin data since the app didn't reload.
       // A quick hack is to just dispatch a custom event that useStore can listen to.
-      window.dispatchEvent(new Event('haify_admin_login'));
+      window.dispatchEvent(new Event('haifly_admin_login'));
     } else {
       setError('Incorrect password. Try again.');
     }

@@ -45,7 +45,7 @@ export function HandlerLoginPage() {
     setError('');
 
     try {
-      const dummyEmail = `${phone}@handler.haify.com`;
+      const dummyEmail = `${phone}@handler.haifly.com`;
       const { data, error: authError } = await supabaseHandler.auth.signInWithPassword({
         email: dummyEmail,
         password: phone,

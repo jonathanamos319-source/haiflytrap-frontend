@@ -198,7 +198,7 @@ export function MarketersPage() {
               <span className="font-bold text-gold">H</span>
             </div>
             <div>
-              <p className="font-display font-bold">Haify Trap</p>
+              <p className="font-display font-bold">Haifly Trap</p>
               <p className="text-xs text-white/50">SUPER ADMIN</p>
             </div>
           </button>
@@ -254,7 +254,7 @@ export function MarketersPage() {
                 <span className="font-bold text-gold">H</span>
               </div>
               <div>
-                <p className="font-display font-bold">Haify Trap</p>
+                <p className="font-display font-bold">Haifly Trap</p>
                 <p className="text-xs text-white/50">SUPER ADMIN</p>
               </div>
             </button>
@@ -664,7 +664,7 @@ export function MarketersPage() {
                    <Lock className="w-5 h-5 text-emerald-600" />
                  </div>
                  <div>
-                    <p className="text-xs font-bold text-slate-800">Haify Trap Internal Security</p>
+                    <p className="text-xs font-bold text-slate-800">Haifly Trap Internal Security</p>
                     <p className="text-[10px] text-slate-400">Secure Node Cluster · Dashboard v2.8.1</p>
                  </div>
             </div>

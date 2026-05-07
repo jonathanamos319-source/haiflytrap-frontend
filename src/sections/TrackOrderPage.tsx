@@ -567,7 +567,7 @@ export function TrackOrderPage() {
         </div>
 
         <p className="text-center text-[10px] lg:text-xs text-gray-400 mt-12 font-medium">
-          Haify Trap - Protecting your space, one delivery at a time.
+          Haifly Trap - Protecting your space, one delivery at a time.
         </p>
       </div>
     </div>
