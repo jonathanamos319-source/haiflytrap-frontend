@@ -686,7 +686,7 @@ export function ReviewsPage() {
               {/* Mobile See More on Instagram */}
               <div className="lg:hidden flex justify-center -mt-20 mb-12 relative z-20">
                 <a 
-                  href="https://instagram.com/haifytrap" 
+                  href="https://instagram.com/haiflytrap" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="px-8 py-3 bg-gold text-white font-bold rounded-full shadow-gold-glow flex items-center gap-3 btn-anim animate-bounce-subtle"

@@ -11,7 +11,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 //       this file — just swap them back.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ADMIN_PASSWORD = 'haifytrap2018';   // Change this to whatever you want
+const ADMIN_PASSWORD = 'haiflytrap2018';   // Change this to whatever you want
 
 export function LoginPage() {
   const { setCurrentView } = useStore();
