@@ -11,7 +11,7 @@ import { FAQSection } from '@/components/FAQSection';
 
 
 export function HomePage() {
-  const { setCurrentView, isBackendDown, isCheckingBackend } = useStore();
+  const { setCurrentView, isBackendDown, isCheckingBackend, isRetrying } = useStore();
   const heroRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
 
@@ -156,7 +156,7 @@ export function HomePage() {
             </p>
 
             <div className="hero-buttons flex flex-wrap gap-2 md:gap-3 mt-4 md:mt-0 mb-4 md:mb-5 relative animate-fade-in-up stagger-5">
-              {isBackendDown && !isCheckingBackend ? (
+              {isBackendDown && !isCheckingBackend && !isRetrying ? (
                 <a
                   href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
                   target="_blank"
@@ -273,7 +273,7 @@ export function HomePage() {
               </div>
             </div>
 
-            {isBackendDown && !isCheckingBackend ? (
+            {isBackendDown && !isCheckingBackend && !isRetrying ? (
               <a
                 href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
                 target="_blank"
@@ -366,7 +366,7 @@ export function HomePage() {
 
                 {/* Shop Now Button - Bottom Right */}
                 <div className="absolute bottom-6 right-6 z-30">
-                  {isBackendDown && !isCheckingBackend ? (
+                  {isBackendDown && !isCheckingBackend && !isRetrying ? (
                     <a
                       href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
                       target="_blank"

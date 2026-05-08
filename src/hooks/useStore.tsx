@@ -242,61 +242,165 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isRetrying, setIsRetrying] = useState(false);
 
   // ── Backend Health Check ──
+  // Refs used inside the health-check effect so they never go stale
+  const isBackendDownRef = React.useRef(false);
+  const keepAliveTimerRef = React.useRef<number | null>(null);
+  const selfHealTimerRef = React.useRef<number | null>(null);
+
   useEffect(() => {
-    let checkInterval: number;
+    const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
 
-    const performHealthCheck = async (isInitial = false) => {
-      if (isInitial) setIsCheckingBackend(true);
+    // ── Helpers ──────────────────────────────────────────────────────────────
 
-      const maxRetries = 2;
+    /** Abort-safe fetch with a configurable timeout (ms). */
+    const fetchWithTimeout = (url: string, timeoutMs: number): Promise<Response> => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
+    };
+
+    /** Returns true when the /health response body signals the server is healthy. */
+    const isHealthy = async (response: Response): Promise<boolean> => {
+      if (!response.ok) return false;
+      try {
+        const data = await response.json();
+        return data?.status === 'ok' || data?.data?.status === 'ok';
+      } catch {
+        return false;
+      }
+    };
+
+    /** Sleep for `ms` milliseconds. */
+    const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+    /** Jitter: ±1 000 ms random offset. */
+    const jitter = () => (Math.random() * 2 - 1) * 1000;
+
+    // ── Keep-alive ────────────────────────────────────────────────────────────
+    /** Send a silent ping every 4 minutes to prevent the backend going cold. */
+    const startKeepAlive = () => {
+      if (keepAliveTimerRef.current) clearInterval(keepAliveTimerRef.current);
+      keepAliveTimerRef.current = window.setInterval(async () => {
+        try {
+          await fetchWithTimeout(HEALTH_URL, 15000);
+        } catch {
+          // Silently ignore — the self-heal loop will pick it up if needed
+        }
+      }, 4 * 60 * 1000); // every 4 minutes
+    };
+
+    // ── Data reload on recovery ────────────────────────────────────────────────
+    const reloadDataAfterRecovery = async () => {
+      try {
+        const [resProducts, resBlogs] = await Promise.all([
+          api.get('/products'),
+          api.get('/blogs'),
+        ]);
+        if (resProducts.data?.success && Array.isArray(resProducts.data.data)) {
+          const apiProducts = resProducts.data.data;
+          setProducts(prev => {
+            const merged = [...apiProducts];
+            DEFAULT_PRODUCTS.forEach(dp => {
+              if (!merged.some(p => p.id === dp.id)) merged.push(dp);
+            });
+            return merged;
+          });
+        }
+        if (resBlogs.data?.success && Array.isArray(resBlogs.data.data)) {
+          setBlogs(resBlogs.data.data);
+        }
+      } catch {
+        // Silently ignore — products stay on their last good state
+      }
+    };
+
+    // ── Self-heal loop ────────────────────────────────────────────────────────
+    /** After a confirmed failure, poll every 30 s until the backend is back. */
+    const startSelfHeal = () => {
+      if (selfHealTimerRef.current) clearInterval(selfHealTimerRef.current);
+      selfHealTimerRef.current = window.setInterval(async () => {
+        try {
+          const response = await fetchWithTimeout(HEALTH_URL, 15000);
+          if (await isHealthy(response)) {
+            // Backend recovered!
+            isBackendDownRef.current = false;
+            setIsBackendDown(false);
+            clearInterval(selfHealTimerRef.current!);
+            selfHealTimerRef.current = null;
+            startKeepAlive();
+            await reloadDataAfterRecovery();
+          }
+        } catch {
+          // Still down — try again on next tick
+        }
+      }, 30000); // every 30 seconds
+    };
+
+    // ── Initial health check with exponential back-off + jitter ──────────────
+    /**
+     * Attempt schedule:
+     *   Attempt 0 — 40 s timeout  (covers full cold start)
+     *   Attempt 1 — 15 s timeout, wait ~3 s  (3 s base + ±1 s jitter)
+     *   Attempt 2 — 15 s timeout, wait ~6 s
+     *   Attempt 3 — 15 s timeout, wait ~12 s
+     *
+     * isBackendDown stays false the entire time.
+     * isCheckingBackend stays true the entire time.
+     * The unavailable banner is NEVER shown during this phase.
+     */
+    const MAX_RETRIES = 3;
+    const BASE_BACKOFF_MS = 3000;
+
+    const performInitialCheck = async () => {
+      setIsCheckingBackend(true);
+      setIsBackendDown(false); // ensure banner is hidden throughout
+      isBackendDownRef.current = false;
+
       let success = false;
-      const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
 
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        // Set isRetrying if we are beyond the first attempt
-        if (attempt > 0) setIsRetrying(true);
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        const timeoutMs = attempt === 0 ? 40000 : 15000;
 
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s timeout per attempt
-
-          const response = await fetch(HEALTH_URL, {
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data && (data.status === 'ok' || data.data?.status === 'ok')) {
-              success = true;
-              break;
-            }
+          const response = await fetchWithTimeout(HEALTH_URL, timeoutMs);
+          if (await isHealthy(response)) {
+            success = true;
+            break;
           }
-        } catch (err) {
-          // Attempt failed (network error, timeout, etc.)
+        } catch {
+          // Network error or timeout — fall through to backoff
         }
 
-        if (!success && attempt < maxRetries) {
-          // Wait 5s before retry
-          await new Promise(resolve => setTimeout(resolve, 5000));
+        // If there are retries left, wait with exponential backoff + jitter
+        if (!success && attempt < MAX_RETRIES) {
+          const backoffMs = BASE_BACKOFF_MS * Math.pow(2, attempt) + jitter();
+          await sleep(Math.max(backoffMs, 0));
         }
       }
 
-      // Final state updates after all retries are exhausted
+      // ── All attempts finished ────────────────────────────────────────────
       setIsRetrying(false);
-      setIsBackendDown(!success);
-      if (isInitial) setIsCheckingBackend(false);
+      setIsCheckingBackend(false);
+
+      if (success) {
+        isBackendDownRef.current = false;
+        setIsBackendDown(false);
+        startKeepAlive(); // prevent future cold starts
+      } else {
+        isBackendDownRef.current = true;
+        setIsBackendDown(true); // only now show the banner
+        startSelfHeal();        // keep trying silently in the background
+      }
     };
 
-    performHealthCheck(true);
+    performInitialCheck();
 
-    // Continue checking every 20 seconds
-    checkInterval = window.setInterval(() => {
-      performHealthCheck(false);
-    }, 20000);
-
-    return () => clearInterval(checkInterval);
-  }, []);
+    // Cleanup
+    return () => {
+      if (keepAliveTimerRef.current) clearInterval(keepAliveTimerRef.current);
+      if (selfHealTimerRef.current) clearInterval(selfHealTimerRef.current);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Marketers & Handlers (from API) ──
   const [marketers, setMarketers] = useState<AdminMarketer[]>([]);

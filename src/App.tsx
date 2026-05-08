@@ -103,7 +103,7 @@ function PageWrapper({ children, viewKey }: { children: React.ReactNode; viewKey
 }
 
 function AppContent() {
-  const { currentView, setCurrentView, isBackendDown, isCheckingBackend } = useStore();
+  const { currentView, setCurrentView, isBackendDown, isCheckingBackend, isRetrying } = useStore();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -111,11 +111,11 @@ function AppContent() {
 
   useEffect(() => {
     // If backend is down and user is on a restricted page, kick them back to home
-    const restrictedViews = ['shop', 'product', 'cart', 'checkout', 'recent-orders', 'settings', 'customer-login', 'admin-dashboard'];
-    if (isBackendDown && !isCheckingBackend && restrictedViews.includes(currentView)) {
+    const restrictedViews = ['checkout', 'recent-orders', 'settings', 'admin-dashboard'];
+    if (isBackendDown && !isCheckingBackend && !isRetrying && restrictedViews.includes(currentView)) {
       setCurrentView('home');
     }
-  }, [isBackendDown, currentView, setCurrentView]);
+  }, [isBackendDown, isCheckingBackend, isRetrying, currentView, setCurrentView]);
 
 
   // ── Auth callbacks (public — no guard) ──────────────────────────────────────
@@ -174,7 +174,7 @@ function AppContent() {
         <DeliveryModal key={currentView} alwaysShow />
       )}
       <div className="min-h-screen flex flex-col">
-        {isBackendDown && !isCheckingBackend && (
+        {isBackendDown && !isCheckingBackend && !isRetrying && (
           <div className="bg-gold text-forest py-2 px-4 text-center text-xs md:text-sm font-bold sticky top-0 z-[60] shadow-md">
             ⚠️ Shop temporarily unavailable. Order via WhatsApp.
           </div>

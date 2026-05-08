@@ -6,7 +6,7 @@ import walletAnimation from '../lotties/system-solid-5-wallet-hover-wallet.json'
 import api from '@/lib/api';
 
 export function CartPage() {
-  const { cart, cartTotal, updateQuantity, removeFromCart, setCurrentView, setActiveCouponCode } = useStore();
+  const { cart, cartTotal, updateQuantity, removeFromCart, setCurrentView, setActiveCouponCode, isBackendDown, isCheckingBackend, isRetrying } = useStore();
   const [promoInput, setPromoInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -196,19 +196,37 @@ export function CartPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => setCurrentView('checkout')}
-                className="w-full py-3 bg-forest text-white font-semibold rounded-full hover:bg-forest-light transition-all mb-4 flex items-center justify-center gap-2 group"
-              >
-                <div className="w-8 h-8">
-                  <Lottie 
-                    animationData={walletAnimation} 
-                    loop={true} 
-                    autoplay={true}
-                  />
-                </div>
-                <span>Proceed to Checkout</span>
-              </button>
+              {isBackendDown && !isCheckingBackend && !isRetrying ? (
+                <a
+                  href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order%20the%20following%20items:%0A${cart.map(item => `${item.product.name} x${item.quantity}`).join('%0A')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-forest text-white font-semibold rounded-full hover:bg-forest-light transition-all mb-4 flex items-center justify-center gap-2 group"
+                >
+                  <div className="w-8 h-8">
+                    <Lottie 
+                      animationData={walletAnimation} 
+                      loop={true} 
+                      autoplay={true}
+                    />
+                  </div>
+                  <span>Order on WhatsApp</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => setCurrentView('checkout')}
+                  className="w-full py-3 bg-forest text-white font-semibold rounded-full hover:bg-forest-light transition-all mb-4 flex items-center justify-center gap-2 group"
+                >
+                  <div className="w-8 h-8">
+                    <Lottie 
+                      animationData={walletAnimation} 
+                      loop={true} 
+                      autoplay={true}
+                    />
+                  </div>
+                  <span>Proceed to Checkout</span>
+                </button>
+              )}
 
               <div className="text-center">
                 <span className="text-xs text-muted-foreground">or</span>
