@@ -243,43 +243,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let checkInterval: number;
 
-    // const performHealthCheck = async (isInitial = false) => {
-    //   if (isInitial) setIsCheckingBackend(true);
-
-    //   const maxRetries = 2;
-    //   let success = false;
-    //   const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
-
-    //   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    //     try {
-    //       const controller = new AbortController();
-    //       const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-    //       const response = await fetch(HEALTH_URL, {
-    //         signal: controller.signal
-    //       });
-    //       clearTimeout(timeoutId);
-
-    //       if (response.ok) {
-    //         const data = await response.json();
-    //         if (data && (data.status === 'ok' || data.data?.status === 'ok')) {
-    //           success = true;
-    //           break;
-    //         }
-    //       }
-    //     } catch (err) {
-    //       // Attempt failed (network error, timeout, etc.)
-    //     }
-
-    //     if (!success && attempt < maxRetries) {
-    //       // Wait 1.5s before retry
-    //       await new Promise(resolve => setTimeout(resolve, 1500));
-    //     }
-    //   }
-
-    //   setIsBackendDown(!success);
-    //   if (isInitial) setIsCheckingBackend(false);
-    // };
     const performHealthCheck = async (isInitial = false) => {
       if (isInitial) setIsCheckingBackend(true);
 
@@ -290,7 +253,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 40000);
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
 
           const response = await fetch(HEALTH_URL, {
             signal: controller.signal
@@ -309,8 +272,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!success && attempt < maxRetries) {
-          // Wait 5s before retry
-          await new Promise(resolve => setTimeout(resolve, 5000));
+          // Wait 1.5s before retry
+          await new Promise(resolve => setTimeout(resolve, 1500));
         }
       }
 
