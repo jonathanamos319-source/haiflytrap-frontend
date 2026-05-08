@@ -78,6 +78,7 @@ interface StoreContextType {
   logout: () => void;
   isBackendDown: boolean;
   isCheckingBackend: boolean;
+  isRetrying: boolean;
 }
 
 
@@ -238,6 +239,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const [isBackendDown, setIsBackendDown] = useState(false);
   const [isCheckingBackend, setIsCheckingBackend] = useState(true);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   // ── Backend Health Check ──
   useEffect(() => {
@@ -251,6 +253,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        // Set isRetrying if we are beyond the first attempt
+        if (attempt > 0) setIsRetrying(true);
+
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s timeout per attempt
@@ -277,6 +282,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // Final state updates after all retries are exhausted
+      setIsRetrying(false);
       setIsBackendDown(!success);
       if (isInitial) setIsCheckingBackend(false);
     };
@@ -1055,6 +1062,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         logout,
         isBackendDown,
         isCheckingBackend,
+        isRetrying,
       }}
     >
       {children}
