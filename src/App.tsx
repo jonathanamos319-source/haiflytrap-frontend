@@ -112,21 +112,11 @@ function AppContent() {
   useEffect(() => {
     // If backend is down and user is on a restricted page, kick them back to home
     const restrictedViews = ['shop', 'product', 'cart', 'checkout', 'recent-orders', 'settings', 'customer-login', 'admin-dashboard'];
-    if (isBackendDown && restrictedViews.includes(currentView)) {
+    if (isBackendDown && !isCheckingBackend && restrictedViews.includes(currentView)) {
       setCurrentView('home');
     }
   }, [isBackendDown, currentView, setCurrentView]);
 
-  if (isCheckingBackend) {
-    return (
-      <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-forest border-t-transparent rounded-full animate-spin"></div>
-          <p className="font-display font-medium text-forest animate-pulse">Connecting...</p>
-        </div>
-      </div>
-    );
-  }
 
   // ── Auth callbacks (public — no guard) ──────────────────────────────────────
   if (currentView === 'admin-callback') {
@@ -184,7 +174,7 @@ function AppContent() {
         <DeliveryModal key={currentView} alwaysShow />
       )}
       <div className="min-h-screen flex flex-col">
-        {isBackendDown && (
+        {isBackendDown && !isCheckingBackend && (
           <div className="bg-gold text-forest py-2 px-4 text-center text-xs md:text-sm font-bold sticky top-0 z-[60] shadow-md">
             ⚠️ Shop temporarily unavailable. Order via WhatsApp.
           </div>

@@ -6,7 +6,7 @@ import cartAnimation from '../lotties/system-solid-6-shopping-hover-pinch.json';
 import { supabaseUser } from '@/lib/supabase';
 
 export function Navbar() {
-  const { cartCount, setCurrentView, currentView, searchQuery, setSearchQuery, isBackendDown } = useStore();
+  const { cartCount, setCurrentView, currentView, searchQuery, setSearchQuery, isBackendDown, isCheckingBackend } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -35,9 +35,9 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Home', view: 'home' as const },
-    { label: 'Shop', view: 'shop' as const, disabled: isBackendDown },
+    { label: 'Shop', view: 'shop' as const, disabled: isBackendDown && !isCheckingBackend },
     { label: 'About', view: 'reviews' as const },
-    { label: 'Track Order', view: 'track-order' as const, disabled: isBackendDown },
+    { label: 'Track Order', view: 'track-order' as const, disabled: isBackendDown && !isCheckingBackend },
   ];
 
   const showBackButton = currentView !== 'home';
@@ -103,7 +103,7 @@ export function Navbar() {
           {/* More Dropdown */}
             <div className="relative group">
               <button 
-                disabled={isBackendDown}
+                disabled={isBackendDown && !isCheckingBackend}
                 className={`px-3.5 py-2 text-sm font-medium transition-all btn-anim rounded-xl flex items-center gap-1 ${
                   isBackendDown ? 'opacity-40 cursor-not-allowed' :
                   isActive('blog') || isActive('settings') || isActive('customer-login')
@@ -116,7 +116,7 @@ export function Navbar() {
                   <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-1 bg-gold rounded-full z-10" />
                 )}
               </button>
-              {!isBackendDown && (
+              {!(isBackendDown && !isCheckingBackend) && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-outline-variant opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right scale-95 group-hover:scale-100 flex flex-col overflow-hidden z-50">
                   <button 
                     onClick={() => setCurrentView('blog')} 

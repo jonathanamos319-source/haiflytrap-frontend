@@ -198,7 +198,7 @@ function VideoStoryCard({ card, index, isActive, onIntersect }: { card: any, ind
 }
 
 export function ReviewsPage() {
-  const { setCurrentView, isBackendDown } = useStore();
+  const { setCurrentView, isBackendDown, isCheckingBackend } = useStore();
   const [wordIndex, setWordIndex] = useState(0);
   const wordRef = useRef<HTMLSpanElement>(null);
   const words = ['Home?', 'Restaurants?', 'Pets?'];
@@ -758,7 +758,7 @@ export function ReviewsPage() {
           <p className="text-white/70 max-w-lg mx-auto mb-8">
             Join 50,000+ Nigerian families who trust Haifly Trap for eco-friendly housefly control.
           </p>
-          {isBackendDown ? (
+          {isBackendDown && !isCheckingBackend ? (
             <a
               href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
               target="_blank"

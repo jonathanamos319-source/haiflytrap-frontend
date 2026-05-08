@@ -11,7 +11,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { WaveDivider } from '@/components/WaveDivider';
 
 export function BlogPage() {
-  const { setCurrentView, blogs, isLoadingBlogs, setSelectedBlog, searchQuery, setSearchQuery, isBackendDown } = useStore();
+  const { setCurrentView, blogs, isLoadingBlogs, setSelectedBlog, searchQuery, setSearchQuery, isBackendDown, isCheckingBackend } = useStore();
   const [selectedUseCase, setSelectedUseCase] = useState<any>(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [displayLimit, setDisplayLimit] = useState(6);
@@ -113,7 +113,7 @@ export function BlogPage() {
             <p className="text-muted-foreground font-bold text-lg mb-8 max-w-lg leading-relaxed">
               Flies are more than just a nuisance—they are carriers of dangerous pathogens. Boardkiller surface spray is your ultimate defense, providing a safe and sterile environment since 2026.
             </p>
-            {isBackendDown ? (
+            {isBackendDown && !isCheckingBackend ? (
               <a 
                 href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
                 target="_blank"

@@ -10,7 +10,7 @@ import { ProductCard } from '@/components/ProductCard';
 export function BlogDetailPage() {
   const { 
     selectedBlog, setSelectedBlog, setCurrentView, blogs, 
-    products, triggerTransition, isBackendDown 
+    products, triggerTransition, isBackendDown, isCheckingBackend 
   } = useStore();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showStickyCTA, setShowStickyCTA] = useState(false);
@@ -286,7 +286,7 @@ export function BlogDetailPage() {
                     {trapProduct && <ProductCard product={trapProduct} variant="horizontal" />}
                     {tenLitreProduct && <ProductCard product={tenLitreProduct} variant="horizontal" />}
                     <div className="p-2 pt-0 flex justify-center">
-                      {isBackendDown ? (
+                      {isBackendDown && !isCheckingBackend ? (
                         <a 
                           href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
                           target="_blank"
@@ -327,7 +327,7 @@ export function BlogDetailPage() {
               Join thousands of protected homes and businesses. Get free shipping on all orders over ₦50,000 today.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              {isBackendDown ? (
+              {isBackendDown && !isCheckingBackend ? (
                 <a 
                   href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`}
                   target="_blank"
@@ -345,10 +345,10 @@ export function BlogDetailPage() {
                 </button>
               )}
               <button 
-                onClick={() => isBackendDown ? window.open(`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`, '_blank') : setCurrentView('shop')}
+                onClick={() => isBackendDown && !isCheckingBackend ? window.open(`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`, '_blank') : setCurrentView('shop')}
                 className="bg-transparent text-white border-2 border-white px-10 py-5 rounded-2xl font-bold hover:bg-white hover:text-forest transition-all w-full sm:w-auto"
               >
-                {isBackendDown ? 'Order via WhatsApp' : 'View All Products'}
+                {isBackendDown && !isCheckingBackend ? 'Order via WhatsApp' : 'View All Products'}
               </button>
             </div>
           </div>
@@ -392,12 +392,12 @@ export function BlogDetailPage() {
           <div className="bg-forest text-white py-3 px-4 md:px-6 rounded-full shadow-2xl flex items-center justify-between gap-4 border border-white/20 backdrop-blur-md">
             <div 
               className="flex items-center gap-3 cursor-pointer flex-1"
-              onClick={() => isBackendDown ? window.open(`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`, '_blank') : setCurrentView('shop')}
+              onClick={() => isBackendDown && !isCheckingBackend ? window.open(`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20order`, '_blank') : setCurrentView('shop')}
             >
               <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center shrink-0">
                 <ShoppingBag className="w-5 h-5" />
               </div>
-              <span className="text-xs md:text-sm font-bold truncate">{isBackendDown ? '💬 Chat to order from this post →' : '🛍️ Shop looks from this post →'}</span>
+              <span className="text-xs md:text-sm font-bold truncate">{isBackendDown && !isCheckingBackend ? '💬 Chat to order from this post →' : '🛍️ Shop looks from this post →'}</span>
             </div>
             <button 
               onClick={() => {
@@ -438,7 +438,7 @@ export function BlogDetailPage() {
               </div>
               <button 
                 onClick={() => {
-                  if (isBackendDown) {
+                  if (isBackendDown && !isCheckingBackend) {
                     window.open(`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}?text=Hi%20I%20want%20to%20use%20code%20WELCOME10`, '_blank');
                   } else {
                     setCurrentView('shop');
@@ -447,7 +447,7 @@ export function BlogDetailPage() {
                 }}
                 className="w-full py-4 bg-forest text-white rounded-2xl font-bold hover:bg-forest/90 transition-all shadow-lg"
               >
-                {isBackendDown ? 'Claim via WhatsApp' : 'Claim Discount Now'}
+                {isBackendDown && !isCheckingBackend ? 'Claim via WhatsApp' : 'Claim Discount Now'}
               </button>
             </div>
           </div>
