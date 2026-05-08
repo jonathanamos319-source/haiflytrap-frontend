@@ -98,29 +98,29 @@ const getViewFromLocation = (): View => {
   const path = window.location.pathname;
 
   // ── Auth callbacks (separate for admin vs customer) ──
-  if (path === '/auth/callback/admin')    return 'admin-callback';
+  if (path === '/auth/callback/admin') return 'admin-callback';
   if (path === '/auth/callback/customer') return 'customer-callback';
   // Legacy single callback (fallback)
-  if (path === '/auth/callback')          return 'auth-callback';
+  if (path === '/auth/callback') return 'auth-callback';
 
   // ── Admin portal (secret path only) ──
-  if (path === ADMIN_PATH)        return 'admin-login';
-  if (path === '/admin')          return 'admin-login';
-  if (path === '/marketers')      return 'admin-login';
+  if (path === ADMIN_PATH) return 'admin-login';
+  if (path === '/admin') return 'admin-login';
+  if (path === '/marketers') return 'admin-login';
 
   // ── Handler portal ──
-  if (path === '/handler-login')  return 'handler-login';
+  if (path === '/handler-login') return 'handler-login';
   if (path === '/handler' || path === '/handlers') return 'handler-login';
 
   // ── Customer auth ──
-  if (path === '/login')          return 'customer-login';
+  if (path === '/login') return 'customer-login';
 
   // ── Storefront ──
-  if (path === '/shop')           return 'shop';
-  if (path === '/reviews')        return 'reviews';
-  if (path === '/cart')           return 'cart';
-  if (path === '/checkout')       return 'checkout';
-  if (path === '/orders')         return 'recent-orders';
+  if (path === '/shop') return 'shop';
+  if (path === '/reviews') return 'reviews';
+  if (path === '/cart') return 'cart';
+  if (path === '/checkout') return 'checkout';
+  if (path === '/orders') return 'recent-orders';
   return 'home';
 };
 
@@ -242,10 +242,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // ── Backend Health Check ──
   useEffect(() => {
     let checkInterval: number;
-    
+
     const performHealthCheck = async (isInitial = false) => {
       if (isInitial) setIsCheckingBackend(true);
-      
+
       const maxRetries = 2;
       let success = false;
       const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
@@ -262,7 +262,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
           if (response.ok) {
             const data = await response.json();
-            if (data && data.status === 'ok') {
+            if (data && (data.status === 'ok' || data.data?.status === 'ok')) {
               success = true;
               break;
             }
@@ -270,7 +270,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
           // Attempt failed (network error, timeout, etc.)
         }
-        
+
         if (!success && attempt < maxRetries) {
           // Wait 1.5s before retry
           await new Promise(resolve => setTimeout(resolve, 1500));
@@ -345,7 +345,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const rehydrateSessions = async () => {
       const path = window.location.pathname;
       const tempToken = localStorage.getItem('temp_admin_token');
-      
+
       // Admin Rehydration
       if (path.startsWith('/admin') || path.startsWith('/marketers')) {
         if (tempToken) {
@@ -539,7 +539,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
       const session = adminSession.data.session || handlerSession.data.session || userSession.data.session;
       const tempToken = localStorage.getItem('temp_admin_token');
-      
+
       if (!session && !tempToken) {
         setIsLoadingMarketers(false);
         setIsLoadingHandlers(false);
@@ -581,9 +581,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setIsLoadingHandlers(false);
       }
     };
-    
+
     fetchAdminData();
-    
+
     window.addEventListener('haifly_admin_login', fetchAdminData);
     return () => window.removeEventListener('haifly_admin_login', fetchAdminData);
   }, []);
@@ -626,35 +626,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const handleSetView = useCallback((view: View) => {
     setCurrentView(view);
     const specialRoutes: Record<string, string> = {
-      'home':              '/',
-      'shop':              '/shop',
-      'product':           '/product',
-      'cart':              '/cart',
-      'checkout':          '/checkout',
-      'reviews':           '/reviews',
-      'admin-dashboard':   '/admin',
-      'admin-marketers':   '/marketers',
-      'handler-portal':    '/handler',
+      'home': '/',
+      'shop': '/shop',
+      'product': '/product',
+      'cart': '/cart',
+      'checkout': '/checkout',
+      'reviews': '/reviews',
+      'admin-dashboard': '/admin',
+      'admin-marketers': '/marketers',
+      'handler-portal': '/handler',
       // Admin portal uses secret path
-      'admin-login':       ADMIN_PATH,
+      'admin-login': ADMIN_PATH,
       // Auth callbacks
-      'auth-callback':     '/auth/callback',
-      'admin-callback':    '/auth/callback/admin',
+      'auth-callback': '/auth/callback',
+      'admin-callback': '/auth/callback/admin',
       'customer-callback': '/auth/callback/customer',
       // Customer auth
-      'customer-login':    '/login',
+      'customer-login': '/login',
       // Settings & Blogs
-      'blog':              '/blog',
-      'blog-post':         '/blog-post',
-      'settings':          '/settings',
-      'recent-orders':     '/orders',
-      'track-order':       '/track-order',
-      'handler-login':     '/handler-login',
+      'blog': '/blog',
+      'blog-post': '/blog-post',
+      'settings': '/settings',
+      'recent-orders': '/orders',
+      'track-order': '/track-order',
+      'handler-login': '/handler-login',
     };
 
     if (specialRoutes[view]) {
       let targetPath = specialRoutes[view];
-      
+
       // If navigating TO a login page, preserve the current path in a 'from' query param
       if (view.includes('login')) {
         const currentPath = window.location.pathname;
@@ -662,7 +662,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           targetPath += `?from=${encodeURIComponent(currentPath)}`;
         }
       }
-      
+
       window.history.pushState({}, '', targetPath);
     } else if (window.location.pathname !== '/') {
       window.history.pushState({}, '', '/');
@@ -991,7 +991,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     } else {
       await supabaseUser.auth.signOut();
     }
-    
+
     setCurrentView('home');
     window.location.href = '/';
   }, []);
