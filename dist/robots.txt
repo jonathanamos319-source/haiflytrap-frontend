@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /hft-secure-portal-2024
 Disallow: /auth/callback
-Sitemap: https://haifytrap.com/sitemap.xml
+Sitemap: https://haiflytrap.com/sitemap.xml

@@ -248,22 +248,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       
       const maxRetries = 2;
       let success = false;
-      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+      const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-          const response = await fetch(`${API_BASE}/health`, {
+          const response = await fetch(HEALTH_URL, {
             signal: controller.signal
           });
           clearTimeout(timeoutId);
 
           if (response.ok) {
             const data = await response.json();
-            // Valid success indicators: status "ok" or success true
-            if (data && (data.status === 'ok' || data.success === true)) {
+            if (data && data.status === 'ok') {
               success = true;
               break;
             }
