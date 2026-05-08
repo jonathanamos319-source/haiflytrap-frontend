@@ -253,7 +253,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s timeout per attempt
 
           const response = await fetch(HEALTH_URL, {
             signal: controller.signal
@@ -272,8 +272,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!success && attempt < maxRetries) {
-          // Wait 1.5s before retry
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Wait 5s before retry
+          await new Promise(resolve => setTimeout(resolve, 5000));
         }
       }
 
