@@ -2,6 +2,7 @@ import { useStore } from '@/hooks/useStore';
 import { Home, ShoppingBag, BookOpen, ShoppingCart, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabaseUser } from '@/lib/supabase';
+import type { View } from '@/types';
 
 export function BottomNav() {
   const { currentView, setCurrentView, cartCount } = useStore();
@@ -54,7 +55,7 @@ export function BottomNav() {
           return (
             <button
               key={item.id}
-              onClick={() => setCurrentView(item.view)}
+              onClick={() => setCurrentView(item.view as View)}
               className="relative flex flex-col items-center w-14 h-14"
             >
               <div 
