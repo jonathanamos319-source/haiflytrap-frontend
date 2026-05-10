@@ -258,7 +258,7 @@ export function ReviewsPage() {
 
                 {/* Left Eye */}
                 <div className="absolute top-[8%] left-[26%] w-[22%] h-[18%] rounded-[40%_60%_50%_50%] overflow-hidden shadow-lg z-30 animate-fly-antenna-1 hover:scale-110 transition-transform duration-300 border-[3px] border-white">
-                  <img src="https://res.cloudinary.com/decnpcsss/image/upload/v1778090660/haifly-trap-products/cyzloowys7vwtcmdqglz.jpg" alt="Broadkiller Pocket Spray" className="w-full h-full object-cover" />
+                  <img src="https://res.cloudinary.com/decnpcsss/image/upload/v1778172698/Dajosh-9.jpg_bewxxx.jpg" alt="Broadkiller Pocket Spray" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Right Eye */}
@@ -555,10 +555,10 @@ export function ReviewsPage() {
                   <span className="text-6xl md:text-7xl font-display font-black text-white/5 absolute -top-8 -left-2 select-none group-hover:text-gold/10 transition-colors">1</span>
                   <div className="relative pl-4">
                     <h3 className="text-xl font-display font-bold text-white mb-2 flex items-center gap-3">
-                      <span className="w-8 h-px bg-gold" /> ADD REFILL
+                      <span className="w-8 h-px bg-gold" /> POUR 500ML REFILL
                     </h3>
                     <p className="text-white/60 leading-relaxed text-sm md:text-base">
-                      Pour the Haifly Trap refill into the trap container.
+                      Each trap comes with a 500ml liquid refill. Simply pour the entire content directly into the trap container to activate it.
                     </p>
                   </div>
                 </div>
@@ -571,7 +571,7 @@ export function ReviewsPage() {
                       <span className="w-8 h-px bg-gold" /> HANG OUTDOORS
                     </h3>
                     <p className="text-white/60 leading-relaxed text-sm md:text-base">
-                      Hang it 2-3 feet away from the ground.
+                      Find a suitable spot outside and hang the trap approximately 2 feet above the ground for maximum effectiveness.
                     </p>
                   </div>
                 </div>
@@ -581,10 +581,10 @@ export function ReviewsPage() {
                   <span className="text-6xl md:text-7xl font-display font-black text-white/5 absolute -top-8 -left-2 select-none group-hover:text-gold/10 transition-colors">3</span>
                   <div className="relative pl-4">
                     <h3 className="text-xl font-display font-bold text-white mb-2 flex items-center gap-3">
-                      <span className="w-8 h-px bg-gold" /> ECO-DISPOSAL
+                      <span className="w-8 h-px bg-gold" /> EMPTY & REUSE
                     </h3>
                     <p className="text-white/60 leading-relaxed text-sm md:text-base">
-                      When full, empty and reuse.
+                      Once the trap is full, simply throw away the dead flies inside, clean the container, and it's ready to be reused.
                     </p>
                   </div>
                 </div>

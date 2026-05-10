@@ -186,7 +186,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     category: 'organic-sprays',
     price: 250,
     minQuantity: 10,
-    image: 'https://res.cloudinary.com/decnpcsss/image/upload/v1778090660/haifly-trap-products/cyzloowys7vwtcmdqglz.jpg',
+    image: 'https://res.cloudinary.com/decnpcsss/image/upload/v1778172698/Dajosh-9.jpg_bewxxx.jpg',
     description: 'Travel-sized 30ML pocket spray. Perfect for on-the-go protection against houseflies and mosquitoes. Highly effective botanical formula in a compact size.',
     rating: 4.9,
     reviews: 85,

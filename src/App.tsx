@@ -36,6 +36,9 @@ import { DeliveryModal } from '@/components/DeliveryModal';
 import { AdminOfflineBlocker } from '@/components/AdminOfflineBlocker';
 import { Toaster, toast } from 'sonner';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { usePWA } from '@/hooks/usePWA';
+import { SplashScreen } from '@/components/SplashScreen';
+import { BottomNav } from '@/components/BottomNav';
 
 function PWAUpdatePrompt() {
   const {
@@ -102,7 +105,7 @@ function PageWrapper({ children, viewKey }: { children: React.ReactNode; viewKey
   );
 }
 
-function AppContent() {
+function AppContent({ isPWA }: { isPWA: boolean }) {
   const { currentView, setCurrentView, isBackendDown, isCheckingBackend, isRetrying } = useStore();
 
   useEffect(() => {
@@ -179,8 +182,8 @@ function AppContent() {
             ⚠️ Shop temporarily unavailable. Order via WhatsApp.
           </div>
         )}
-        <Navbar />
-        <main className="flex-1 pt-[64px] md:pt-[80px]">
+        {!isPWA && <Navbar />}
+        <main className={`flex-1 ${isPWA ? 'pt-4 pb-24' : 'pt-[64px] md:pt-[80px]'}`}>
           <PageWrapper viewKey={currentView}>
             {currentView === 'home'               && <HomePage />}
             {currentView === 'shop'               && <ShopPage />}
@@ -198,18 +201,22 @@ function AppContent() {
         </main>
         <Footer />
         <ProductTransition />
+        {isPWA && <BottomNav />}
       </div>
     </>
   );
 }
 
 function App() {
+  const { isPWA } = usePWA();
+  
   return (
     <StoreProvider>
       <SEO />
+      <SplashScreen />
       <PWAUpdatePrompt />
       <AdminOfflineBlocker />
-      <AppContent />
+      <AppContent isPWA={isPWA} />
       <Toaster position="top-right" richColors />
     </StoreProvider>
   );

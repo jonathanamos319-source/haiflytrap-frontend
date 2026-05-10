@@ -2132,6 +2132,17 @@ export function AdminDashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isDrawerOpen]);
+
+  useEffect(() => {
     // Request browser notification permission
     if ('Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();

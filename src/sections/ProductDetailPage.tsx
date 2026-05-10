@@ -369,36 +369,68 @@ export function ProductDetailPage() {
           <div className="bg-white rounded-2xl p-6 md:p-8">
             {activeTab === 'description' && (
               <div className="max-w-3xl">
-                <h3 className="font-display font-semibold text-forest mb-4">
-                  Uncompromising Protection
-                </h3>
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  {selectedProduct.name} uses a proprietary blend of botanical extracts that 
-                  specifically target the nervous systems of common houseflies without 
-                  affecting mammals. Our advanced odourless formula creates an invisible barrier that 
-                  lasts up to 24 hours.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-surface rounded-xl p-5">
-                    <h4 className="font-semibold text-forest mb-3">How It Works</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Disrupts fly nervous system</li>
-                      <li>• Creates protective barrier</li>
-                      <li>• Odourless protection</li>
-                      <li>• Safe for humans and pets</li>
-                      <li>• Biodegradable formula</li>
-                    </ul>
-                  </div>
-                  <div className="bg-surface rounded-xl p-5">
-                    <h4 className="font-semibold text-forest mb-3">Best For</h4>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Indoor housefly control</li>
-                      <li>• Homes with children</li>
-                      <li>• Pet-friendly households</li>
-                      <li>• Eco-conscious families</li>
-                    </ul>
-                  </div>
-                </div>
+                {selectedProduct.category === 'mosquito-traps' || selectedProduct.id === 'hai-trap-001' ? (
+                  <>
+                    <h3 className="font-display font-semibold text-forest mb-4">
+                      The Ultimate Outdoor Fly Trap
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed mb-6">
+                      {selectedProduct.name} is a highly effective, eco-friendly solution for managing houseflies outdoors. Each trap comes with a powerful 500ml liquid refill that attracts and eliminates flies before they enter your home or business.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-surface rounded-xl p-5">
+                        <h4 className="font-semibold text-forest mb-3">How to Use</h4>
+                        <ol className="space-y-3 text-sm text-muted-foreground list-decimal list-inside">
+                          <li><strong className="text-forest">Pour:</strong> Empty the 500ml refill directly into the trap container.</li>
+                          <li><strong className="text-forest">Hang:</strong> Suspend the trap outdoors, approximately 2 feet above the ground.</li>
+                          <li><strong className="text-forest">Reuse:</strong> Once full, throw away the dead flies, clean the container, and reuse.</li>
+                        </ol>
+                      </div>
+                      <div className="bg-surface rounded-xl p-5">
+                        <h4 className="font-semibold text-forest mb-3">Best For</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          <li>• Outdoor spaces & gardens</li>
+                          <li>• Farms and livestock areas</li>
+                          <li>• Restaurant patios</li>
+                          <li>• High-density fly areas</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="font-display font-semibold text-forest mb-4">
+                      Uncompromising Protection
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed mb-6">
+                      {selectedProduct.name} uses a proprietary blend of botanical extracts that 
+                      specifically target the nervous systems of common houseflies without 
+                      affecting mammals. Our advanced odourless formula creates an invisible barrier that 
+                      lasts up to 24 hours.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-surface rounded-xl p-5">
+                        <h4 className="font-semibold text-forest mb-3">How It Works</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          <li>• Disrupts fly nervous system</li>
+                          <li>• Creates protective barrier</li>
+                          <li>• Odourless protection</li>
+                          <li>• Safe for humans and pets</li>
+                          <li>• Biodegradable formula</li>
+                        </ul>
+                      </div>
+                      <div className="bg-surface rounded-xl p-5">
+                        <h4 className="font-semibold text-forest mb-3">Best For</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          <li>• Indoor housefly control</li>
+                          <li>• Homes with children</li>
+                          <li>• Pet-friendly households</li>
+                          <li>• Eco-conscious families</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

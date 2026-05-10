@@ -18,6 +18,17 @@ export function BlogPage() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (selectedUseCase) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedUseCase]);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -111,7 +122,7 @@ export function BlogPage() {
               <span className="text-gold">Space & Health</span>
             </h1>
             <p className="text-muted-foreground font-bold text-lg mb-8 max-w-lg leading-relaxed">
-              Flies are more than just a nuisance—they are carriers of dangerous pathogens. Boardkiller surface spray is your ultimate defense, providing a safe and sterile environment since 2026.
+              Flies are more than just a nuisance—they are carriers of dangerous pathogens. Broadkiller surface spray is your ultimate defense, providing a safe and sterile environment since 2026.
             </p>
             {isBackendDown && !isCheckingBackend ? (
               <a 
@@ -169,7 +180,7 @@ export function BlogPage() {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <p className="text-white/80 leading-relaxed text-base">
-                Boardkiller surface spray is formulated to eliminate flies efficiently while leaving a protective barrier. It's designed for maximum potency against houseflies while ensuring safety for the surrounding environment when used as directed.
+                Broadkiller surface spray is formulated to eliminate flies efficiently while leaving a protective barrier. It's designed for maximum potency against houseflies while ensuring safety for the surrounding environment when used as directed.
               </p>
             </div>
           </div>
@@ -183,7 +194,7 @@ export function BlogPage() {
         <LeavesBackground opacity={0.08} />
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 relative z-10">
           <div>
-            <h2 className="text-3xl md:text-4xl font-black text-forest mb-4">Where To Use Boardkiller</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-forest mb-4">Where To Use Broadkiller or Haifly Trap</h2>
             <p className="text-muted-foreground max-w-2xl">Versatile protection designed for professional and commercial spaces.</p>
           </div>
         </div>
