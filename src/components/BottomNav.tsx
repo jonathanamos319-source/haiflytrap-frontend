@@ -146,12 +146,12 @@ export function BottomNav() {
             ...buttonReset,
             position: 'absolute',
             right: 24,
-            bottom: 'calc(80px + env(safe-area-inset-bottom))',
+            bottom: 'calc(110px + env(safe-area-inset-bottom))',
             width: 54,
             height: 54,
             borderRadius: '50%',
-            background: '#0f5238 !important',
-            boxShadow: '0 6px 20px rgba(15,82,56,0.4)',
+            background: 'white',
+            boxShadow: '0 8px 28px rgba(0,0,0,0.20), 0 2px 8px rgba(0,0,0,0.10)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -159,7 +159,7 @@ export function BottomNav() {
             zIndex: 10000,
           }}
         >
-          <ShoppingCart size={24} color="#fff" strokeWidth={2.2} />
+          <ShoppingCart size={24} color="#0f5238" strokeWidth={2.2} />
           {cartCount > 0 && (
             <span style={{
               position: 'absolute',
@@ -170,7 +170,7 @@ export function BottomNav() {
               fontSize: 9, fontWeight: 900,
               borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '2px solid #0f5238',
+              border: '2px solid white',
             }}>
               {cartCount > 9 ? '9+' : cartCount}
             </span>
