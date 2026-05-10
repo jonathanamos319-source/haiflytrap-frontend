@@ -32,6 +32,12 @@ function getPillPath(notchCx: number): string {
   ].join(' ');
 }
 
+const noHL: React.CSSProperties = {
+  WebkitTapHighlightColor: 'rgba(0,0,0,0)',
+  outline: 'none',
+  userSelect: 'none',
+};
+
 export function BottomNav() {
   const { currentView, setCurrentView, cartCount } = useStore();
   const [session, setSession] = useState<any>(null);
@@ -94,49 +100,42 @@ export function BottomNav() {
     }
   };
 
-  // Shared no-highlight touch style
-  const noHighlight: React.CSSProperties = {
-    WebkitTapHighlightColor: 'rgba(0,0,0,0)',
-    outline: 'none',
-    userSelect: 'none',
-  };
-
   return (
     <>
       <style>{`
-        .bnav-btn, .bnav-btn:hover, .bnav-btn:focus, .bnav-btn:active,
-        .bnav-btn:focus-visible {
+        .bnav-div {
           -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
-          tap-highlight-color: rgba(0,0,0,0) !important;
+          outline: none !important;
+          -webkit-appearance: none !important;
+        }
+        .bnav-div:hover, .bnav-div:focus, .bnav-div:active {
           background: transparent !important;
           outline: none !important;
           box-shadow: none !important;
-          border: none !important;
-          -webkit-appearance: none !important;
-          appearance: none !important;
         }
       `}</style>
 
-      {/* Floating Cart Button */}
-      <button
-        className="bnav-btn"
+      {/* Floating Cart Button — white circle with green icon */}
+      <div
+        role="button"
+        tabIndex={0}
+        className="bnav-div"
         onClick={() => setCurrentView('cart' as View)}
-        onTouchStart={() => { }}
-        aria-label="Cart"
+        onTouchEnd={(e) => { e.preventDefault(); setCurrentView('cart' as View); }}
         style={{
-          ...noHighlight,
+          ...noHL,
           position: 'fixed',
           right: 20,
           bottom: 'calc(100px + env(safe-area-inset-bottom))',
-          width: 50,
-          height: 50,
+          width: 52,
+          height: 52,
           borderRadius: '50%',
           background: '#ffffff',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1.5px solid rgba(0,0,0,0.07)',
+          border: '1.5px solid rgba(0,0,0,0.08)',
           cursor: 'pointer',
           zIndex: 10000,
         }}
@@ -155,16 +154,16 @@ export function BottomNav() {
             {cartCount > 9 ? '9+' : cartCount}
           </span>
         )}
-      </button>
+      </div>
 
       {/* Main nav wrapper */}
       <div style={{
+        ...noHL,
         position: 'fixed', left: 0, right: 0, bottom: 0,
         zIndex: 9999,
         display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
         paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
         pointerEvents: 'none',
-        ...noHighlight,
       }}>
 
         {/* More popup */}
@@ -189,44 +188,43 @@ export function BottomNav() {
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 8px', borderBottom: '1px solid #f1f5f9' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>More</span>
-            <button className="bnav-btn" onTouchStart={() => { }} onClick={() => setShowMoreMenu(false)} style={{ ...noHighlight, color: '#94a3b8' }}>
+            <div role="button" className="bnav-div" onClick={() => setShowMoreMenu(false)} onTouchEnd={(e) => { e.preventDefault(); setShowMoreMenu(false); }} style={{ ...noHL, cursor: 'pointer', color: '#94a3b8' }}>
               <X size={14} />
-            </button>
+            </div>
           </div>
           {[
             { icon: BookOpen, label: 'Blog', view: 'blog' },
             { icon: MapPin, label: 'Track Order', view: 'track-order' },
           ].map(link => (
-            <button
+            <div
               key={link.view}
-              className="bnav-btn"
-              onTouchStart={() => { }}
+              role="button"
+              className="bnav-div"
               onClick={() => { setCurrentView(link.view as View); setShowMoreMenu(false); }}
-              style={{ ...noHighlight, width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid #f8fafc', textAlign: 'left' }}
+              onTouchEnd={(e) => { e.preventDefault(); setCurrentView(link.view as View); setShowMoreMenu(false); }}
+              style={{ ...noHL, width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid #f8fafc', cursor: 'pointer' }}
             >
               <div style={{ width: 36, height: 36, borderRadius: 10, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <link.icon size={18} color="#0f5238" strokeWidth={2} />
               </div>
               <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{link.label}</span>
-            </button>
+            </div>
           ))}
         </div>
 
         {/* Pill nav */}
-        <div style={{ position: 'relative', width: W, pointerEvents: 'auto', ...noHighlight }}>
+        <div style={{ ...noHL, position: 'relative', width: W, pointerEvents: 'auto' }}>
 
-          {/* SVG pill */}
+          {/* SVG pill with notch curve — NO rect, just the path */}
           <svg
             width={W} height={H}
             viewBox={`0 0 ${W} ${H}`}
             style={{
+              ...noHL,
               position: 'absolute', top: 0, left: 0,
               filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.14)) drop-shadow(0 1px 4px rgba(0,0,0,0.08))',
-              ...noHighlight,
             }}
           >
-            {/* White base covers entire pill area including notch region from behind */}
-            <rect x="0" y="0" width={W} height={H} fill="white" rx={R} />
             <path
               d={getPillPath(notchX)}
               fill="white"
@@ -236,6 +234,7 @@ export function BottomNav() {
 
           {/* Active floating circle */}
           <div style={{
+            ...noHL,
             position: 'absolute',
             top: -(NOTCH_R + 4),
             left: notchX - NOTCH_R,
@@ -246,12 +245,11 @@ export function BottomNav() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'left 0.35s cubic-bezier(0.34,1.2,0.64,1)',
             zIndex: 2,
-            ...noHighlight,
           }}>
             {(() => { const Icon = NAV_ITEMS[activeIndex].icon; return <Icon size={20} strokeWidth={2.5} color="#0f5238" />; })()}
           </div>
 
-          {/* Nav buttons — each one is a div acting as button to bypass browser button highlight */}
+          {/* Nav tab divs — using div instead of button kills the yellow highlight */}
           <div style={{
             position: 'relative', zIndex: 1,
             display: 'flex', width: W, height: H,
@@ -265,21 +263,21 @@ export function BottomNav() {
                   key={item.id}
                   role="button"
                   tabIndex={0}
+                  className="bnav-div"
                   onClick={() => handleNavClick(item)}
                   onTouchEnd={(e) => { e.preventDefault(); handleNavClick(item); }}
                   style={{
-                    ...noHighlight,
+                    ...noHL,
                     width: segW, height: '100%',
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'flex-end',
                     cursor: 'pointer',
-                    padding: 0,
                     background: 'transparent',
                   }}
                 >
                   {active
                     ? <div style={{ height: 22, marginBottom: 2 }} />
-                    : <div style={{ marginBottom: 2, ...noHighlight }}><Icon size={19} strokeWidth={1.8} color="#94a3b8" /></div>
+                    : <div style={{ marginBottom: 2 }}><Icon size={19} strokeWidth={1.8} color="#94a3b8" /></div>
                   }
                   <span style={{
                     fontSize: 9, lineHeight: 1,
