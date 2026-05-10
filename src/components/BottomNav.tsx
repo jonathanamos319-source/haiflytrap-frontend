@@ -248,6 +248,7 @@ export function BottomNav() {
             style={{
               position: 'absolute', top: 0, left: 0,
               filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.14)) drop-shadow(0 1px 4px rgba(0,0,0,0.08))',
+              WebkitTapHighlightColor: 'rgba(0,0,0,0)',
             }}
           >
             <path
@@ -297,10 +298,12 @@ export function BottomNav() {
                   key={item.id}
                   className="bnav-btn"
                   onClick={() => handleNavClick(item)}
+                  onTouchStart={() => {}}
                   style={{
                     width: segW, height: '100%',
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'flex-end',
+                    WebkitTapHighlightColor: 'rgba(0,0,0,0)',
                   }}
                 >
                   {/* Spacer so label doesn't hide under circle */}
