@@ -11,6 +11,11 @@ export function usePWA() {
     if (isStandalone) {
       setIsPWA(true);
       setShowSplash(true);
+
+      // Remove tap highlight on mobile PWA
+      const style = document.createElement('style');
+      style.innerHTML = '* { -webkit-tap-highlight-color: transparent !important; }';
+      document.head.appendChild(style);
       
       const timer = setTimeout(() => {
         setShowSplash(false);
