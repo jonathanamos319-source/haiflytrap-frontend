@@ -84,3 +84,17 @@
   animation: fly-antenna 4s ease-in-out infinite;
   animation-delay: 1s;
 }
+
+@media (display-mode: standalone) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
