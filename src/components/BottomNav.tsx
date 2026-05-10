@@ -14,7 +14,6 @@ function getPillPath(notchCx: number): string {
   const nr = NOTCH_R + 3;
   const depth = NOTCH_DEPTH;
   const spread = nr * 0.7;
-
   return [
     `M ${R} 0`,
     `L ${notchCx - nr - spread} 0`,
@@ -81,8 +80,7 @@ export function BottomNav() {
   useEffect(() => {
     const idx = getActiveIndex();
     setActiveIndex(idx);
-    const segW = W / NAV_ITEMS.length;
-    setNotchX(segW * idx + segW / 2);
+    setNotchX((W / NAV_ITEMS.length) * idx + (W / NAV_ITEMS.length) / 2);
   }, [currentView, session]);
 
   const segW = W / NAV_ITEMS.length;
@@ -96,38 +94,37 @@ export function BottomNav() {
     }
   };
 
+  // Shared no-highlight touch style
+  const noHighlight: React.CSSProperties = {
+    WebkitTapHighlightColor: 'rgba(0,0,0,0)',
+    outline: 'none',
+    userSelect: 'none',
+  };
+
   return (
     <>
       <style>{`
-        .bnav-btn {
-          -webkit-tap-highlight-color: transparent !important;
+        .bnav-btn, .bnav-btn:hover, .bnav-btn:focus, .bnav-btn:active,
+        .bnav-btn:focus-visible {
+          -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+          tap-highlight-color: rgba(0,0,0,0) !important;
+          background: transparent !important;
           outline: none !important;
-          background: none !important;
+          box-shadow: none !important;
           border: none !important;
-          cursor: pointer;
-          padding: 0;
-        }
-        .bnav-btn:hover, .bnav-btn:focus, .bnav-btn:active {
-          background: none !important;
-          outline: none !important;
-          box-shadow: none !important;
-        }
-        .bnav-cart-btn {
-          -webkit-tap-highlight-color: transparent !important;
-          outline: none !important;
-        }
-        .bnav-cart-btn:hover, .bnav-cart-btn:focus, .bnav-cart-btn:active {
-          outline: none !important;
-          box-shadow: none !important;
+          -webkit-appearance: none !important;
+          appearance: none !important;
         }
       `}</style>
 
-      {/* Floating Cart Button — sits well above the nav */}
+      {/* Floating Cart Button */}
       <button
-        className="bnav-cart-btn"
+        className="bnav-btn"
         onClick={() => setCurrentView('cart' as View)}
+        onTouchStart={() => { }}
         aria-label="Cart"
         style={{
+          ...noHighlight,
           position: 'fixed',
           right: 20,
           bottom: 'calc(100px + env(safe-area-inset-bottom))',
@@ -147,11 +144,9 @@ export function BottomNav() {
         <ShoppingCart size={22} color="#0f5238" strokeWidth={2.2} />
         {cartCount > 0 && (
           <span style={{
-            position: 'absolute',
-            top: 3, right: 3,
+            position: 'absolute', top: 3, right: 3,
             width: 17, height: 17,
-            background: '#FBBF24',
-            color: '#fff',
+            background: '#FBBF24', color: '#fff',
             fontSize: 9, fontWeight: 900,
             borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -163,21 +158,16 @@ export function BottomNav() {
       </button>
 
       {/* Main nav wrapper */}
-      <div
-        style={{
-          position: 'fixed',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 9999,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-end',
-          paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
-          pointerEvents: 'none',
-        }}
-      >
-        {/* More popup sheet */}
+      <div style={{
+        position: 'fixed', left: 0, right: 0, bottom: 0,
+        zIndex: 9999,
+        display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
+        pointerEvents: 'none',
+        ...noHighlight,
+      }}>
+
+        {/* More popup */}
         <div
           ref={moreMenuRef}
           style={{
@@ -191,24 +181,18 @@ export function BottomNav() {
             overflow: 'hidden',
             pointerEvents: 'auto',
             opacity: showMoreMenu ? 1 : 0,
-            transform: showMoreMenu
-              ? 'translateX(-50%) translateY(0)'
-              : 'translateX(-50%) translateY(10px)',
+            transform: showMoreMenu ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(10px)',
             visibility: showMoreMenu ? 'visible' : 'hidden',
             transition: 'opacity 0.2s ease, transform 0.2s ease',
             zIndex: 9998,
           }}
         >
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '12px 16px 8px', borderBottom: '1px solid #f1f5f9',
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 8px', borderBottom: '1px solid #f1f5f9' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>More</span>
-            <button className="bnav-btn" onClick={() => setShowMoreMenu(false)} style={{ color: '#94a3b8' }}>
+            <button className="bnav-btn" onTouchStart={() => { }} onClick={() => setShowMoreMenu(false)} style={{ ...noHighlight, color: '#94a3b8' }}>
               <X size={14} />
             </button>
           </div>
-
           {[
             { icon: BookOpen, label: 'Blog', view: 'blog' },
             { icon: MapPin, label: 'Track Order', view: 'track-order' },
@@ -216,21 +200,11 @@ export function BottomNav() {
             <button
               key={link.view}
               className="bnav-btn"
+              onTouchStart={() => { }}
               onClick={() => { setCurrentView(link.view as View); setShowMoreMenu(false); }}
-              style={{
-                width: '100%',
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '14px 16px',
-                borderBottom: '1px solid #f8fafc',
-                textAlign: 'left',
-              }}
+              style={{ ...noHighlight, width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid #f8fafc', textAlign: 'left' }}
             >
-              <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: '#f0fdf4',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <link.icon size={18} color="#0f5238" strokeWidth={2} />
               </div>
               <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{link.label}</span>
@@ -239,18 +213,19 @@ export function BottomNav() {
         </div>
 
         {/* Pill nav */}
-        <div style={{ position: 'relative', width: W, pointerEvents: 'auto' }}>
+        <div style={{ position: 'relative', width: W, pointerEvents: 'auto', ...noHighlight }}>
 
-          {/* SVG pill with notch */}
+          {/* SVG pill */}
           <svg
             width={W} height={H}
             viewBox={`0 0 ${W} ${H}`}
             style={{
               position: 'absolute', top: 0, left: 0,
               filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.14)) drop-shadow(0 1px 4px rgba(0,0,0,0.08))',
-              WebkitTapHighlightColor: 'rgba(0,0,0,0)',
+              ...noHighlight,
             }}
           >
+            {/* White base covers entire pill area including notch region from behind */}
             <rect x="0" y="0" width={W} height={H} fill="white" rx={R} />
             <path
               d={getPillPath(notchX)}
@@ -260,68 +235,60 @@ export function BottomNav() {
           </svg>
 
           {/* Active floating circle */}
-          <div
-            style={{
-              position: 'absolute',
-              top: -(NOTCH_R + 4),
-              left: notchX - NOTCH_R,
-              width: NOTCH_R * 2,
-              height: NOTCH_R * 2,
-              borderRadius: '50%',
-              background: 'white',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.16)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'left 0.35s cubic-bezier(0.34,1.2,0.64,1)',
-              zIndex: 2,
-            }}
-          >
-            {(() => {
-              const Icon = NAV_ITEMS[activeIndex].icon;
-              return <Icon size={20} strokeWidth={2.5} color="#0f5238" />;
-            })()}
+          <div style={{
+            position: 'absolute',
+            top: -(NOTCH_R + 4),
+            left: notchX - NOTCH_R,
+            width: NOTCH_R * 2, height: NOTCH_R * 2,
+            borderRadius: '50%',
+            background: 'white',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.16)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'left 0.35s cubic-bezier(0.34,1.2,0.64,1)',
+            zIndex: 2,
+            ...noHighlight,
+          }}>
+            {(() => { const Icon = NAV_ITEMS[activeIndex].icon; return <Icon size={20} strokeWidth={2.5} color="#0f5238" />; })()}
           </div>
 
-          {/* Nav buttons row */}
-          <div
-            style={{
-              position: 'relative', zIndex: 1,
-              display: 'flex', width: W, height: H,
-              alignItems: 'flex-end',
-              paddingBottom: 10,
-            }}
-          >
+          {/* Nav buttons — each one is a div acting as button to bypass browser button highlight */}
+          <div style={{
+            position: 'relative', zIndex: 1,
+            display: 'flex', width: W, height: H,
+            alignItems: 'flex-end', paddingBottom: 10,
+          }}>
             {NAV_ITEMS.map((item, idx) => {
               const active = idx === activeIndex;
               const Icon = item.icon;
-
               return (
-                <button
+                <div
                   key={item.id}
-                  className="bnav-btn"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleNavClick(item)}
-                  onTouchStart={() => {}}
+                  onTouchEnd={(e) => { e.preventDefault(); handleNavClick(item); }}
                   style={{
+                    ...noHighlight,
                     width: segW, height: '100%',
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'flex-end',
-                    WebkitTapHighlightColor: 'rgba(0,0,0,0)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    background: 'transparent',
                   }}
                 >
-                  {/* Spacer so label doesn't hide under circle */}
                   {active
                     ? <div style={{ height: 22, marginBottom: 2 }} />
-                    : <div style={{ marginBottom: 2 }}><Icon size={19} strokeWidth={1.8} color="#94a3b8" /></div>
+                    : <div style={{ marginBottom: 2, ...noHighlight }}><Icon size={19} strokeWidth={1.8} color="#94a3b8" /></div>
                   }
-
                   <span style={{
-                    fontSize: 9,
-                    lineHeight: 1,
+                    fontSize: 9, lineHeight: 1,
                     fontWeight: active ? 700 : 500,
                     color: active ? '#0f5238' : '#94a3b8',
                   }}>
                     {item.label}
                   </span>
-                </button>
+                </div>
               );
             })}
           </div>
