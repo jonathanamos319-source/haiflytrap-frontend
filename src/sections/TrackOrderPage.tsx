@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/hooks/useStore';
+import { usePWA } from '@/hooks/usePWA';
 import type { Order } from '@/types';
 import {
   CheckCircle2,
@@ -212,6 +213,7 @@ function TimelineItem({ step, isCompleted, isCurrent, isLast, currentStep, time 
 
 export function TrackOrderPage() {
   const { currentOrder, setCurrentOrder, user, isLoadingUser, isBackendDown, isCheckingBackend, isRetrying } = useStore();
+  const { isPWA } = usePWA();
   const [orderId, setOrderId] = useState(currentOrder?.trackingNumber || '');
   const [isTracking, setIsTracking] = useState(!!currentOrder);
   const [demoStep] = useState<StepId>('pending');
@@ -577,7 +579,14 @@ export function TrackOrderPage() {
           </div>
         </div>
 
-        <div className="lg:hidden fixed bottom-6 right-6 z-50">
+        <div 
+          className="lg:hidden fixed z-50" 
+          style={{ 
+            bottom: 'calc(110px + env(safe-area-inset-bottom))', 
+            left: isPWA ? '20px' : 'auto',
+            right: isPWA ? 'auto' : '20px'
+          }}
+        >
           <a
             href="https://wa.me/2348031301311?text=Hi%2C%20I%20need%20help%20with%20my%20order"
             target="_blank"

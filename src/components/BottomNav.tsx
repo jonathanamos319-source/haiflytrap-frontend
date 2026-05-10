@@ -4,16 +4,16 @@ import { useState, useEffect, useRef } from 'react';
 import { supabaseUser } from '@/lib/supabase';
 import type { View } from '@/types';
 
-const W = 340;
-const H = 64;
-const R = 32;
-const NOTCH_R = 28;
-const NOTCH_DEPTH = 18;
+const W = 320;
+const H = 60;
+const R = 30;
+const NOTCH_R = 24;
+const NOTCH_DEPTH = 14;
 
 function getPillPath(notchCx: number): string {
-  const nr = NOTCH_R + 4;
+  const nr = NOTCH_R + 3;
   const depth = NOTCH_DEPTH;
-  const spread = nr * 0.75;
+  const spread = nr * 0.7;
 
   return [
     `M ${R} 0`,
@@ -32,14 +32,6 @@ function getPillPath(notchCx: number): string {
     `Z`,
   ].join(' ');
 }
-
-const buttonReset: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  outline: 'none',
-  WebkitTapHighlightColor: 'transparent',
-};
 
 export function BottomNav() {
   const { currentView, setCurrentView, cartCount } = useStore();
@@ -106,23 +98,71 @@ export function BottomNav() {
 
   return (
     <>
-      {/* Global style to kill tap highlight everywhere in this nav */}
       <style>{`
-        .bottom-nav-btn {
+        .bnav-btn {
           -webkit-tap-highlight-color: transparent !important;
-          tap-highlight-color: transparent !important;
           outline: none !important;
           background: none !important;
+          border: none !important;
+          cursor: pointer;
+          padding: 0;
         }
-        .bottom-nav-btn:hover,
-        .bottom-nav-btn:focus,
-        .bottom-nav-btn:active {
+        .bnav-btn:hover, .bnav-btn:focus, .bnav-btn:active {
           background: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        .bnav-cart-btn {
+          -webkit-tap-highlight-color: transparent !important;
+          outline: none !important;
+        }
+        .bnav-cart-btn:hover, .bnav-cart-btn:focus, .bnav-cart-btn:active {
           outline: none !important;
           box-shadow: none !important;
         }
       `}</style>
 
+      {/* Floating Cart Button — sits well above the nav */}
+      <button
+        className="bnav-cart-btn"
+        onClick={() => setCurrentView('cart' as View)}
+        aria-label="Cart"
+        style={{
+          position: 'fixed',
+          right: 20,
+          bottom: 'calc(100px + env(safe-area-inset-bottom))',
+          width: 50,
+          height: 50,
+          borderRadius: '50%',
+          background: '#ffffff',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1.5px solid rgba(0,0,0,0.07)',
+          cursor: 'pointer',
+          zIndex: 10000,
+        }}
+      >
+        <ShoppingCart size={22} color="#0f5238" strokeWidth={2.2} />
+        {cartCount > 0 && (
+          <span style={{
+            position: 'absolute',
+            top: 3, right: 3,
+            width: 17, height: 17,
+            background: '#FBBF24',
+            color: '#fff',
+            fontSize: 9, fontWeight: 900,
+            borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '1.5px solid #fff',
+          }}>
+            {cartCount > 9 ? '9+' : cartCount}
+          </span>
+        )}
+      </button>
+
+      {/* Main nav wrapper */}
       <div
         style={{
           position: 'fixed',
@@ -133,56 +173,16 @@ export function BottomNav() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-end',
-          paddingBottom: 'calc(14px + env(safe-area-inset-bottom))',
+          paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
           pointerEvents: 'none',
         }}
       >
-        {/* Floating Cart Button */}
-        <button
-          className="bottom-nav-btn"
-          onClick={() => setCurrentView('cart' as View)}
-          aria-label="Cart"
-          style={{
-            ...buttonReset,
-            position: 'absolute',
-            right: 24,
-            bottom: 'calc(110px + env(safe-area-inset-bottom))',
-            width: 54,
-            height: 54,
-            borderRadius: '50%',
-            background: 'white',
-            boxShadow: '0 8px 28px rgba(0,0,0,0.20), 0 2px 8px rgba(0,0,0,0.10)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'auto',
-            zIndex: 10000,
-          }}
-        >
-          <ShoppingCart size={24} color="#0f5238" strokeWidth={2.2} />
-          {cartCount > 0 && (
-            <span style={{
-              position: 'absolute',
-              top: 4, right: 4,
-              width: 18, height: 18,
-              background: '#FBBF24',
-              color: '#fff',
-              fontSize: 9, fontWeight: 900,
-              borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '2px solid white',
-            }}>
-              {cartCount > 9 ? '9+' : cartCount}
-            </span>
-          )}
-        </button>
-
         {/* More popup sheet */}
         <div
           ref={moreMenuRef}
           style={{
             position: 'absolute',
-            bottom: 'calc(90px + env(safe-area-inset-bottom))',
+            bottom: 'calc(88px + env(safe-area-inset-bottom))',
             left: '50%',
             width: 200,
             background: 'white',
@@ -191,19 +191,20 @@ export function BottomNav() {
             overflow: 'hidden',
             pointerEvents: 'auto',
             opacity: showMoreMenu ? 1 : 0,
-            transform: showMoreMenu ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(10px)',
+            transform: showMoreMenu
+              ? 'translateX(-50%) translateY(0)'
+              : 'translateX(-50%) translateY(10px)',
             visibility: showMoreMenu ? 'visible' : 'hidden',
             transition: 'opacity 0.2s ease, transform 0.2s ease',
             zIndex: 9998,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 8px', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 16px 8px', borderBottom: '1px solid #f1f5f9',
+          }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>More</span>
-            <button
-              className="bottom-nav-btn"
-              onClick={() => setShowMoreMenu(false)}
-              style={{ ...buttonReset, padding: 0, color: '#94a3b8' }}
-            >
+            <button className="bnav-btn" onClick={() => setShowMoreMenu(false)} style={{ color: '#94a3b8' }}>
               <X size={14} />
             </button>
           </div>
@@ -214,22 +215,18 @@ export function BottomNav() {
           ].map(link => (
             <button
               key={link.view}
-              className="bottom-nav-btn"
+              className="bnav-btn"
               onClick={() => { setCurrentView(link.view as View); setShowMoreMenu(false); }}
               style={{
-                ...buttonReset,
                 width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
+                display: 'flex', alignItems: 'center', gap: 12,
                 padding: '14px 16px',
                 borderBottom: '1px solid #f8fafc',
                 textAlign: 'left',
               }}
             >
               <div style={{
-                width: 36, height: 36,
-                borderRadius: 10,
+                width: 36, height: 36, borderRadius: 10,
                 background: '#f0fdf4',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
@@ -244,13 +241,13 @@ export function BottomNav() {
         {/* Pill nav */}
         <div style={{ position: 'relative', width: W, pointerEvents: 'auto' }}>
 
-          {/* SVG pill */}
+          {/* SVG pill with notch */}
           <svg
             width={W} height={H}
             viewBox={`0 0 ${W} ${H}`}
             style={{
               position: 'absolute', top: 0, left: 0,
-              filter: 'drop-shadow(0 6px 24px rgba(0,0,0,0.16)) drop-shadow(0 2px 6px rgba(0,0,0,0.10))',
+              filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.14)) drop-shadow(0 1px 4px rgba(0,0,0,0.08))',
             }}
           >
             <path
@@ -264,12 +261,13 @@ export function BottomNav() {
           <div
             style={{
               position: 'absolute',
-              top: -(NOTCH_R + 2),
+              top: -(NOTCH_R + 4),
               left: notchX - NOTCH_R,
-              width: NOTCH_R * 2, height: NOTCH_R * 2,
+              width: NOTCH_R * 2,
+              height: NOTCH_R * 2,
               borderRadius: '50%',
               background: 'white',
-              boxShadow: '0 4px 18px rgba(0,0,0,0.18)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.16)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'left 0.35s cubic-bezier(0.34,1.2,0.64,1)',
               zIndex: 2,
@@ -277,7 +275,7 @@ export function BottomNav() {
           >
             {(() => {
               const Icon = NAV_ITEMS[activeIndex].icon;
-              return <Icon size={22} strokeWidth={2.5} color="#0f5238" />;
+              return <Icon size={20} strokeWidth={2.5} color="#0f5238" />;
             })()}
           </div>
 
@@ -286,7 +284,8 @@ export function BottomNav() {
             style={{
               position: 'relative', zIndex: 1,
               display: 'flex', width: W, height: H,
-              alignItems: 'flex-end', paddingBottom: 8,
+              alignItems: 'flex-end',
+              paddingBottom: 10,
             }}
           >
             {NAV_ITEMS.map((item, idx) => {
@@ -296,25 +295,23 @@ export function BottomNav() {
               return (
                 <button
                   key={item.id}
-                  className="bottom-nav-btn"
+                  className="bnav-btn"
                   onClick={() => handleNavClick(item)}
                   style={{
-                    ...buttonReset,
                     width: segW, height: '100%',
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'flex-end',
-                    padding: 0,
                   }}
                 >
-                  {!active && (
-                    <div style={{ position: 'relative', marginBottom: 2 }}>
-                      <Icon size={20} strokeWidth={1.8} color="#94a3b8" />
-                    </div>
-                  )}
-                  {active && <div style={{ height: 20, marginBottom: 2 }} />}
+                  {/* Spacer so label doesn't hide under circle */}
+                  {active
+                    ? <div style={{ height: 22, marginBottom: 2 }} />
+                    : <div style={{ marginBottom: 2 }}><Icon size={19} strokeWidth={1.8} color="#94a3b8" /></div>
+                  }
 
                   <span style={{
-                    fontSize: 10, lineHeight: 1,
+                    fontSize: 9,
+                    lineHeight: 1,
                     fontWeight: active ? 700 : 500,
                     color: active ? '#0f5238' : '#94a3b8',
                   }}>
