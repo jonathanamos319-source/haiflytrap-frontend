@@ -30,10 +30,9 @@ export function BottomNav() {
     { id: 'account', icon: User, label: 'Account', view: session ? 'settings' : 'home' },
   ];
 
-  // A helper to determine if an item is active based on currentView
   const isActive = (item: any) => {
     if (item.id === 'account') {
-      return currentView === 'settings' || currentView === 'customer-login' || currentView === 'recent-orders';
+      return currentView === 'settings' || currentView === 'recent-orders';
     }
     if (item.id === 'shop') {
       return currentView === 'shop' || currentView === 'product';
@@ -45,47 +44,79 @@ export function BottomNav() {
   };
 
   return (
-    <div 
-      className="fixed bottom-0 left-0 right-0 z-50 px-4 pt-4 pointer-events-none"
-      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
-    >
-      <div className="mx-auto max-w-md bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 px-6 py-2 md:py-3 pointer-events-auto flex justify-between items-center relative h-[72px]">
-        {navItems.map((item) => {
-          const active = isActive(item);
-          return (
-            <button
-              key={item.id}
-              onClick={() => setCurrentView(item.view as View)}
-              className="relative flex flex-col items-center w-14 h-14"
-            >
-              <div 
-                className={`flex items-center justify-center transition-all duration-300 ease-out absolute ${
-                  active 
-                    ? 'top-1 text-slate-800' 
-                    : 'top-3 text-slate-400'
-                }`}
-              >
-                <item.icon className="w-6 h-6" strokeWidth={active ? 2.5 : 2} />
-                
-                {/* Cart Badge */}
-                {item.id === 'cart' && cartCount > 0 && (
-                  <span className="absolute bg-gold text-white font-black flex items-center justify-center rounded-full -top-1.5 -right-2 w-4 h-4 text-[9px]">
-                    {cartCount > 9 ? '9+' : cartCount}
+    <>
+      {/* Outer wrapper: floats above bottom with safe-area padding */}
+      <div
+        className="fixed left-0 right-0 z-50 flex items-end justify-center pointer-events-none"
+        style={{
+          bottom: 0,
+          paddingLeft: '1rem',
+          paddingRight: '1rem',
+          paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
+        }}
+      >
+        {/* The pill bar */}
+        <div
+          className="w-full max-w-sm pointer-events-auto relative bg-white border border-slate-200/80 rounded-[999px] shadow-[0_4px_24px_0_rgba(0,0,0,0.13),0_1.5px_6px_0_rgba(0,0,0,0.07)]"
+          style={{ height: 64 }}
+        >
+          <div className="flex justify-between items-end h-full px-4 pb-2">
+            {navItems.map((item) => {
+              const active = isActive(item);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setCurrentView(item.view as View)}
+                  className="relative flex flex-col items-center justify-end"
+                  style={{ minWidth: 48, height: '100%' }}
+                >
+                  {/* Icon container — floats above the pill when active */}
+                  <div
+                    className={`flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.34,1.36,0.64,1)] ${
+                      active
+                        ? 'absolute bg-white rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-slate-100'
+                        : 'mb-4'
+                    }`}
+                    style={
+                      active
+                        ? {
+                            width: 48,
+                            height: 48,
+                            bottom: 28,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                          }
+                        : { width: 24, height: 24 }
+                    }
+                  >
+                    <item.icon
+                      className={active ? 'text-slate-800' : 'text-slate-400'}
+                      style={{ width: active ? 22 : 22, height: active ? 22 : 22 }}
+                      strokeWidth={active ? 2.5 : 1.8}
+                    />
+
+                    {/* Cart badge */}
+                    {item.id === 'cart' && cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">
+                        {cartCount > 9 ? '9+' : cartCount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Label */}
+                  <span
+                    className={`text-[10px] leading-none transition-all duration-200 ${
+                      active ? 'text-slate-800 font-bold' : 'text-slate-400 font-medium'
+                    }`}
+                  >
+                    {item.label}
                   </span>
-                )}
-              </div>
-              
-              <span 
-                className={`absolute bottom-1 text-[10px] transition-all duration-300 ${
-                  active ? 'text-slate-800 font-bold' : 'text-slate-400 font-medium'
-                }`}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
