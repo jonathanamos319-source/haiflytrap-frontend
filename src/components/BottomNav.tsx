@@ -251,6 +251,7 @@ export function BottomNav() {
               WebkitTapHighlightColor: 'rgba(0,0,0,0)',
             }}
           >
+            <rect x="0" y="0" width={W} height={H} fill="white" rx={R} />
             <path
               d={getPillPath(notchX)}
               fill="white"
