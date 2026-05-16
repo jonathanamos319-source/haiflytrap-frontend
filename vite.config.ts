@@ -10,7 +10,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   base: './',
   plugins: [
-    inspectAttr(), 
+    inspectAttr(),
     react(),
     ViteImageOptimizer({
       png: { quality: 80 },
@@ -49,12 +49,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor:     ['react', 'react-dom'],
-          supabase:   ['@supabase/supabase-js'],
+          vendor: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
           animations: ['gsap', 'animejs', 'lottie-react'],
-          icons:      ['lucide-react'],
-          charts:     ['recharts'],
-          maps:       ['maplibre-gl'],
+          icons: ['lucide-react'],
         }
       }
     }
