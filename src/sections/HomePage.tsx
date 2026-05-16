@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { animate } from 'animejs';
 import { useStore } from '@/hooks/useStore';
 import { WaveDivider } from '@/components/WaveDivider';
@@ -8,6 +8,8 @@ import Lottie from 'lottie-react';
 import beeAnimation from '../lotties/wired-outline-1148-bee-hover-pinch.json';
 import { loadGSAP } from '@/utils/gsap-loader';
 import { FAQSection } from '@/components/FAQSection';
+
+const MapIframe = lazy(() => import('@/components/MapIframe'));
 
 
 export function HomePage() {
@@ -504,17 +506,9 @@ export function HomePage() {
 
               {/* Map Iframe */}
               <div className="w-full lg:w-2/3 h-[300px] lg:h-[400px]">
-                <iframe
-                  title="Haifly Trap Head Office"
-                  src="https://maps.google.com/maps?q=Eastline%20Complex,%20Abraham%20Adesanya,%20Ajah,%20Lagos&t=&z=14&ie=UTF8&iwloc=&output=embed"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen={false}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full h-full object-cover filter contrast-125 saturate-150"
-                />
+                <Suspense fallback={<div className="w-full h-full bg-surface-high animate-pulse" />}>
+                  <MapIframe />
+                </Suspense>
               </div>
             </div>
           </div>

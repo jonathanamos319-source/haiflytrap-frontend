@@ -2,6 +2,8 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
+// @ts-ignore
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
@@ -10,6 +12,12 @@ export default defineConfig({
   plugins: [
     inspectAttr(), 
     react(),
+    ViteImageOptimizer({
+      png: { quality: 80 },
+      jpeg: { quality: 80 },
+      jpg: { quality: 80 },
+      webp: { quality: 80 },
+    }),
     VitePWA({
       strategies: 'injectManifest',
       srcDir: 'src',
@@ -41,8 +49,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          supabase: ['@supabase/supabase-js'],
+          vendor:     ['react', 'react-dom'],
+          supabase:   ['@supabase/supabase-js'],
+          animations: ['gsap', 'animejs', 'lottie-react'],
+          icons:      ['lucide-react'],
+          charts:     ['recharts'],
+          maps:       ['maplibre-gl'],
         }
       }
     }

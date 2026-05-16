@@ -55,6 +55,9 @@ export function FAQSection() {
                 <img 
                   src="/reading-a-book (1).svg" 
                   alt="FAQ Illustration" 
+                  width="400"
+                  height="400"
+                  loading="lazy"
                   className="w-full h-auto drop-shadow-2xl animate-bounce-subtle"
                 />
               </div>

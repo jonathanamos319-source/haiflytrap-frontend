@@ -72,8 +72,10 @@ export function Navbar() {
             className="flex items-center group overflow-hidden no-anim"
           >
             <img 
-              src="/products/HAIFLYLOGO.png" 
+              src="/products/HAIFLYLOGO.webp" 
               alt="Haifly Logo" 
+              width="150"
+              height="56"
               className="h-9 md:h-14 w-auto object-contain transition-transform group-hover:scale-105" 
             />
           </button>
