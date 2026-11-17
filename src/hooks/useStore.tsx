@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import type { Product, CartItem, Order, View, AdminMarketer, HandlerProfile, BlogPost } from '@/types';
-import api from '@/lib/api';
-import { supabase, supabaseAdmin, supabaseHandler, supabaseUser } from '@/lib/supabase';
+import type { Product, CartItem, Order, View, AdminMarketer, HandlerProfile, BlogPost, User } from '@/types';
+import api, { API_BASE_URL } from '@/lib/api';
 
-import type { User } from '@supabase/supabase-js';
 
 // ─── CONTEXT TYPES ───────────────────────────────────────────────────────────
 
@@ -248,7 +246,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const selfHealTimerRef = React.useRef<number | null>(null);
 
   useEffect(() => {
-    const HEALTH_URL = `${import.meta.env.VITE_API_URL || 'https://api.haiflytrapng.com/api/v1'}/health`;
+    const HEALTH_URL = `${API_BASE_URL}/health`;
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -315,10 +313,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     };
 
     // ── Self-heal loop ────────────────────────────────────────────────────────
-    /** After a confirmed failure, poll every 30 s until the backend is back. */
+    /** After a confirmed failure, poll every 30 s capped at 20 attempts (~10 min). */
+    let selfHealAttempts = 0;
+    const MAX_SELF_HEAL_ATTEMPTS = 20;
+
     const startSelfHeal = () => {
       if (selfHealTimerRef.current) clearInterval(selfHealTimerRef.current);
+      selfHealAttempts = 0;
       selfHealTimerRef.current = window.setInterval(async () => {
+        selfHealAttempts++;
+        if (selfHealAttempts > MAX_SELF_HEAL_ATTEMPTS) {
+          clearInterval(selfHealTimerRef.current!);
+          selfHealTimerRef.current = null;
+          return;
+        }
         try {
           const response = await fetchWithTimeout(HEALTH_URL, 15000);
           if (await isHealthy(response)) {
@@ -451,98 +459,51 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Rehydrate Sessions on mount ──
-  useEffect(() => {
-    const rehydrateSessions = async () => {
-      const path = window.location.pathname;
-      const tempToken = localStorage.getItem('temp_admin_token');
-
-      // Admin Rehydration
-      if (path.startsWith('/admin') || path.startsWith('/marketers')) {
-        if (tempToken) {
-          setCurrentView('admin-dashboard');
-          window.history.pushState({}, '', '/admin');
-        }
-
-        const { data: { session } } = await supabaseAdmin.auth.getSession();
-        if (session?.user) {
-          try {
-            const res = await api.get('/auth/me');
-            if (res.data?.success && res.data.data?.role === 'admin') {
-              setCurrentView('admin-dashboard');
-              window.history.pushState({}, '', '/admin');
-            } else {
-              await supabaseAdmin.auth.signOut();
-            }
-          } catch (err: any) {
-            // Silently catch initialization errors
-            if (err.response?.status !== 401 && err.response?.status !== 400) {
-              console.error('Admin rehydration failed:', err);
-            }
-          }
-        }
+  // ── Rehydrate Sessions on mount & listen to auth changes ──
+  const recheckUser = useCallback(async () => {
+    try {
+      const res = await api.get('/auth/me');
+      if (res.data?.success && res.data.data) {
+        const u = res.data.data;
+        setUser({
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          role: u.role,
+          avatar_url: u.avatar_url,
+          created_at: u.created_at,
+          user_metadata: {
+            full_name: u.name,
+            name: u.name,
+          },
+        });
+      } else {
+        setUser(null);
       }
-
-
-      // Handler Rehydration
-      if (path.startsWith('/handler')) {
-        const { data: { session } } = await supabaseHandler.auth.getSession();
-        if (session?.user) {
-          try {
-            const res = await api.get('/auth/me');
-            if (res.data?.success && res.data.data?.role === 'handler') {
-              setCurrentView('handler-portal');
-              window.history.pushState({}, '', '/handler');
-            } else {
-              await supabaseHandler.auth.signOut();
-            }
-          } catch (err: any) {
-            // Silently catch initialization errors
-            if (err.response?.status !== 401 && err.response?.status !== 400) {
-              console.error('Handler rehydration failed:', err);
-            }
-          }
-        }
-      }
-
-
-      // Customer Rehydration (Global User State)
-      const { data: { session: userSession } } = await supabaseUser.auth.getSession();
-      if (userSession?.user) {
-        setUser(userSession.user);
-      }
+    } catch {
+      setUser(null);
+    } finally {
       setIsLoadingUser(false);
-    };
-    rehydrateSessions();
+    }
   }, []);
 
-  // ── Listen to auth changes for EACH role independently ──
   useEffect(() => {
-    // We only care about syncing the "user" state in useStore with the Customer session
-    // because Admin and Handler views have their own Guard checks.
-    const { data: { subscription: userSub } } = supabaseUser.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setIsLoadingUser(false);
-    });
+    recheckUser();
 
-    // Optional: Log transitions for other roles if needed for debug
-    const { data: { subscription: adminSub } } = supabaseAdmin.auth.onAuthStateChange((event, session) => {
-      console.log('Admin Auth Event:', event, session?.user?.email);
-    });
+    // Listen for custom login/logout notifications across tabs or components
+    const handleAuthChange = () => {
+      recheckUser();
+    };
 
-    const { data: { subscription: handlerSub } } = supabaseHandler.auth.onAuthStateChange((event, session) => {
-      console.log('Handler Auth Event:', event, session?.user?.email);
-    });
-
+    window.addEventListener('haifly_auth_changed', handleAuthChange);
+    window.addEventListener('haifly_admin_login', handleAuthChange);
     return () => {
-      userSub.unsubscribe();
-      adminSub.unsubscribe();
-      handlerSub.unsubscribe();
+      window.removeEventListener('haifly_auth_changed', handleAuthChange);
+      window.removeEventListener('haifly_admin_login', handleAuthChange);
     };
-  }, []);
+  }, [recheckUser]);
 
-
-  // ── Auto-refresh Orders (Admin/Handler) ──
+  // ── Auto-refresh Orders (Admin/Handler/Customer) ──
   useEffect(() => {
     let intervalId: number | undefined;
 
@@ -575,29 +536,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     const fetchOrders = async () => {
       const path = window.location.pathname;
-      const tempToken = localStorage.getItem('temp_admin_token');
       const isAdminRoute = path.startsWith('/admin') || path.startsWith('/marketers');
       const isHandlerRoute = path.startsWith('/handler');
       const storedOrders = localStorage.getItem('haifly_orders');
 
-      const [adminSession, handlerSession] = await Promise.all([
-        supabaseAdmin.auth.getSession(),
-        supabaseHandler.auth.getSession(),
-      ]);
-
-      const hasOrderAccess =
-        !!user ||
-        !!tempToken ||
-        !!adminSession.data.session?.user ||
-        !!handlerSession.data.session?.user;
-
-      if (!hasOrderAccess) {
+      if (!user && !isAdminRoute && !isHandlerRoute) {
         return;
       }
 
       setIsLoadingOrders(true);
       try {
-        const endpoint = (!isAdminRoute && !isHandlerRoute && user) ? '/orders/my-orders' : '/orders';
+        const endpoint = (!isAdminRoute && !isHandlerRoute) ? '/orders/my-orders' : '/orders';
         const res = await api.get(endpoint);
 
         if (res.data?.success && Array.isArray(res.data.data)) {
@@ -641,38 +590,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // ── Fetch marketers & handlers on mount (admin/handler data only) ──
   useEffect(() => {
     const fetchAdminData = async () => {
-      // Check which role's session is active
-      const [adminSession, handlerSession, userSession] = await Promise.all([
-        supabaseAdmin.auth.getSession(),
-        supabaseHandler.auth.getSession(),
-        supabaseUser.auth.getSession()
-      ]);
-
-      const session = adminSession.data.session || handlerSession.data.session || userSession.data.session;
-      const tempToken = localStorage.getItem('temp_admin_token');
-
-      if (!session && !tempToken) {
-        setIsLoadingMarketers(false);
-        setIsLoadingHandlers(false);
-        return;
-      }
-
-      // Check user role from the secure API
-      let role = 'customer';
-      try {
-        const res = await api.get('/auth/me');
-        if (res.data?.success) {
-          role = res.data.data.role;
-        }
-      } catch (err: any) {
-        // Silently catch initialization errors
-        if (err.response?.status !== 401 && err.response?.status !== 400) {
-          console.error('Failed to fetch user role:', err);
-        }
-      }
-
-      // Only admins and handlers can access these endpoints
-      if (role !== 'admin' && role !== 'handler') {
+      if (!user || (user.role !== 'admin' && user.role !== 'handler')) {
         setIsLoadingMarketers(false);
         setIsLoadingHandlers(false);
         return;
@@ -694,10 +612,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     };
 
     fetchAdminData();
-
-    window.addEventListener('haifly_admin_login', fetchAdminData);
-    return () => window.removeEventListener('haifly_admin_login', fetchAdminData);
-  }, []);
+  }, [user]);
 
   // ── Persist active coupon code ──
   useEffect(() => {
@@ -1095,14 +1010,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     const path = window.location.pathname;
+    let role = 'customer';
     if (path.startsWith('/admin') || path.startsWith('/marketers')) {
-      await supabaseAdmin.auth.signOut();
+      role = 'admin';
     } else if (path.startsWith('/handler')) {
-      await supabaseHandler.auth.signOut();
-    } else {
-      await supabaseUser.auth.signOut();
+      role = 'handler';
     }
 
+    try {
+      await api.post(`/auth/logout?role=${role}`);
+    } catch {
+      // ignore
+    }
+
+    setUser(null);
     setCurrentView('home');
     window.location.href = '/';
   }, []);

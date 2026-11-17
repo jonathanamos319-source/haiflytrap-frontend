@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
-import { supabaseUser } from '@/lib/supabase';
 import { api } from '@/lib/api';
-import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import { Loader2, Mail, ArrowLeft, CheckCircle, RotateCw } from 'lucide-react';
 
 type LoginStep = 'form' | 'verify' | 'success';
 
@@ -15,47 +15,107 @@ export function CustomerLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState<LoginStep>('form');
+  const [cooldown, setCooldown] = useState(0);
 
   // ── Redirect if already logged in ──
   useEffect(() => {
     let cancelled = false;
     const checkSession = async () => {
-      const { data: { session } } = await supabaseUser.auth.getSession();
-      if (session && !cancelled && step !== 'success') {
-        const params = new URLSearchParams(window.location.search);
-        const from = params.get('from');
-        if (from) {
-          window.location.href = from;
-        } else {
-          setCurrentView('home');
-          window.history.pushState({}, '', '/');
+      try {
+        const res = await api.get('/auth/me');
+        if (cancelled) return;
+        if (res.data?.success && res.data.data && step !== 'success') {
+          const params = new URLSearchParams(window.location.search);
+          const from = params.get('from');
+          if (from) {
+            window.location.href = from;
+          } else {
+            setCurrentView('home');
+            window.history.pushState({}, '', '/');
+          }
         }
+      } catch {
+        // Not logged in
       }
     };
     checkSession();
     return () => { cancelled = true; };
-  }, [setCurrentView]);
+  }, [setCurrentView, step]);
 
+  // ── Cooldown Timer ──
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
-  // ── Magic Link ──
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !firstName.trim() || !lastName.trim()) return;
+  const handleSuccessfulAuth = () => {
+    window.dispatchEvent(new Event('haifly_auth_changed'));
+    setStep('success');
+    setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get('from');
+      if (from) {
+        window.location.href = from;
+      } else {
+        setCurrentView('home');
+        window.history.pushState({}, '', '/');
+      }
+    }, 1500);
+  };
+
+  // ── Google OAuth ──
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError('Google sign-in token was not received.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      const { error: otpError } = await supabaseUser.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback/customer${window.location.search}`,
-        },
-
+      const res = await api.post('/auth/google', {
+        credential: credentialResponse.credential,
       });
-      if (otpError) throw otpError;
-      setStep('verify');
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to send verification code. Please try again.');
+
+      if (res.data?.success) {
+        handleSuccessfulAuth();
+      } else {
+        setError(res.data?.error || 'Google sign-in failed.');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Google sign-in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Request Email OTP ──
+  const handleRequestOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!email.trim()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      const res = await api.post('/auth/otp/request', {
+        email: email.trim().toLowerCase(),
+        name: fullName || undefined,
+      });
+
+      if (res.data?.success) {
+        setStep('verify');
+        setCooldown(60);
+      } else {
+        setError(res.data?.error || 'Failed to send verification code.');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Failed to send verification code.');
     } finally {
       setLoading(false);
     }
@@ -65,80 +125,26 @@ export function CustomerLoginPage() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp.trim()) return;
+
     setLoading(true);
     setError('');
 
     try {
-      const { data, error: verifyError } = await supabaseUser.auth.verifyOtp({
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      const res = await api.post('/auth/otp/verify', {
         email: email.trim().toLowerCase(),
-        token: otp.trim(),
-        type: 'email',
+        otp: otp.trim(),
+        name: fullName || undefined,
       });
 
-      if (verifyError) throw verifyError;
-
-      const userId = data.session?.user?.id;
-      if (!userId) throw new Error('No user returned.');
-
-      // 1. Update user metadata with their name FIRST
-      // This ensures the backend sync picks up the correct profile info
-      try {
-        await supabaseUser.auth.updateUser({
-          data: {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            full_name: `${firstName.trim()} ${lastName.trim()}`,
-            role: 'customer'
-          }
-        });
-      } catch (metaErr) {
-        console.warn('Metadata update failed, continuing with sync:', metaErr);
+      if (res.data?.success) {
+        handleSuccessfulAuth();
+      } else {
+        setError(res.data?.error || 'Invalid verification code.');
       }
-
-      // 2. Sync user to database securely via API (handles upsert and role defaults)
-      try {
-        const syncRes = await api.post('/auth/sync');
-        if (!syncRes.data?.success) {
-          throw new Error(syncRes.data?.error || 'Failed to sync account data');
-        }
-
-        const userData = syncRes.data.data;
-
-        // 3. If admin, reject (don't allow admins on customer portal)
-        if (userData.role === 'admin') {
-          await supabaseUser.auth.signOut();
-          setError('This portal is for customers. Admin login detected.');
-          setLoading(false);
-          return;
-        }
-      } catch (err: any) {
-        console.error('Account sync error:', err);
-        if (err.response?.data) {
-          console.error('Sync error details:', err.response.data);
-        }
-        setError(err.response?.data?.error || err.message || 'Account verification failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-
-      // Success feedback
-      setStep('success');
-      
-      // Redirect after a short delay
-      setTimeout(() => {
-        const params = new URLSearchParams(window.location.search);
-        const from = params.get('from');
-        if (from) {
-          window.location.href = from;
-        } else {
-          setCurrentView('home');
-          window.history.pushState({}, '', '/');
-        }
-      }, 2500);
-
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Invalid verification code. Please try again.');
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Invalid verification code. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -159,7 +165,7 @@ export function CustomerLoginPage() {
           alt="Haifly"
           className="h-9 md:h-11 w-auto object-contain"
         />
-        <div className="w-16" /> {/* spacer */}
+        <div className="w-16" />
       </div>
 
       {/* Card */}
@@ -177,16 +183,9 @@ export function CustomerLoginPage() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">Login Successful!</h2>
-                <p className="text-slate-500 font-medium italic">Welcome back, {firstName}</p>
+                <p className="text-slate-500 font-medium italic">Welcome back{firstName ? `, ${firstName}` : ''}</p>
               </div>
-              <p className="text-slate-400 text-sm">Hold on, we're taking you back...</p>
-              <div className="pt-4 flex justify-center">
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 bg-[#0f5238] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-[#0f5238] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-[#0f5238] rounded-full animate-bounce"></div>
-                </div>
-              </div>
+              <p className="text-slate-400 text-sm">Redirecting you in a moment…</p>
             </div>
           )}
 
@@ -199,9 +198,11 @@ export function CustomerLoginPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Check your email</h2>
                 <p className="text-slate-500 text-sm leading-relaxed">
-                  We sent a secure code to{' '}
+                  We sent a 6-digit code to{' '}
                   <span className="font-semibold text-slate-700">{email}</span>.
-                  Enter it below to sign in.
+                </p>
+                <p className="text-xs text-amber-700 bg-amber-50 rounded-lg py-1.5 px-3 mt-3 inline-block font-medium">
+                  💡 Check your spam folder if you do not see it in your inbox.
                 </p>
               </div>
 
@@ -219,11 +220,11 @@ export function CustomerLoginPage() {
                   <input
                     type="text"
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter code"
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 focus:border-[#0f5238]/30 transition-all text-center tracking-widest text-lg font-bold"
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 focus:border-[#0f5238]/30 transition-all text-center tracking-widest text-2xl font-bold"
                     required
-                    maxLength={10}
+                    maxLength={6}
                     autoComplete="one-time-code"
                   />
                 </div>
@@ -247,10 +248,20 @@ export function CustomerLoginPage() {
                 </button>
               </form>
 
-              <div className="text-center">
+              <div className="flex flex-col items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={loading || cooldown > 0}
+                  onClick={() => handleRequestOtp()}
+                  className="text-sm font-medium text-[#0f5238] hover:underline disabled:text-slate-400 disabled:no-underline flex items-center gap-1.5"
+                >
+                  <RotateCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                  {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}
+                </button>
+
                 <button
                   onClick={() => { setStep('form'); setError(''); setOtp(''); }}
-                  className="text-sm text-slate-400 hover:text-slate-700 transition-colors underline underline-offset-4"
+                  className="text-xs text-slate-400 hover:text-slate-600 underline"
                 >
                   Use a different email
                 </button>
@@ -265,7 +276,7 @@ export function CustomerLoginPage() {
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">
                   Welcome back
                 </h1>
-                <p className="text-slate-500 text-sm">Sign in to track your orders and more</p>
+                <p className="text-slate-500 text-sm">Sign in to track orders and save your details</p>
               </div>
 
               {error && (
@@ -274,11 +285,33 @@ export function CustomerLoginPage() {
                 </div>
               )}
 
-              {/* Login form */}
-              <form onSubmit={handleMagicLink} className="space-y-4" id="customer-magic-link-form">
-                <div className="grid grid-cols-2 gap-4">
+              {/* 1. Google Button First */}
+              <div className="flex justify-center w-full">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google sign-in was unsuccessful.')}
+                  shape="circle"
+                  theme="outline"
+                  size="large"
+                  text="continue_with"
+                  width="350"
+                />
+              </div>
+
+              {/* Divider */}
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-slate-200"></div>
+                <span className="flex-shrink mx-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  or email code
+                </span>
+                <div className="flex-grow border-t border-slate-200"></div>
+              </div>
+
+              {/* 2. Email OTP Fallback Form */}
+              <form onSubmit={handleRequestOtp} className="space-y-4" id="customer-otp-form">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-2 block">
+                    <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
                       First Name
                     </label>
                     <input
@@ -286,12 +319,11 @@ export function CustomerLoginPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="John"
-                      className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 focus:border-[#0f5238]/30 transition-all"
-                      required
+                      className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 transition-all text-sm"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-2 block">
+                    <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
                       Last Name
                     </label>
                     <input
@@ -299,14 +331,13 @@ export function CustomerLoginPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Doe"
-                      className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 focus:border-[#0f5238]/30 transition-all"
-                      required
+                      className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 transition-all text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 mb-2 block">
+                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
                     Email address
                   </label>
                   <input
@@ -315,33 +346,33 @@ export function CustomerLoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 focus:border-[#0f5238]/30 transition-all"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/30 transition-all"
                     required
                     autoComplete="email"
                   />
                 </div>
 
                 <button
-                  id="customer-send-link-btn"
+                  id="customer-send-code-btn"
                   type="submit"
-                  disabled={loading || !email.trim() || !firstName.trim() || !lastName.trim()}
-                  className="w-full py-4 bg-[#0f5238] text-white font-bold text-sm rounded-2xl hover:opacity-90 transition-all flex items-center justify-center gap-3 btn-anim disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading || !email.trim()}
+                  className="w-full py-4 bg-[#0f5238] text-white font-bold text-sm rounded-2xl hover:opacity-90 transition-all flex items-center justify-center gap-3 btn-anim disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#0f5238]/10"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Sending link…</span>
+                      <span>Sending Code…</span>
                     </>
                   ) : (
                     <>
                       <Mail className="w-5 h-5" />
-                      <span>Send Verification Code</span>
+                      <span>Send 6-Digit Code</span>
                     </>
                   )}
                 </button>
               </form>
 
-              <p className="text-center text-xs text-slate-400 leading-relaxed">
+              <p className="text-center text-[11px] text-slate-400 leading-relaxed">
                 By signing in you agree to our{' '}
                 <span className="underline cursor-pointer hover:text-slate-600 transition-colors">Terms of Service</span>{' '}
                 and{' '}

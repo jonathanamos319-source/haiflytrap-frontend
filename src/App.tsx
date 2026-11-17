@@ -1,8 +1,10 @@
 import { useEffect, lazy, Suspense } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { StoreProvider, useStore } from '@/hooks/useStore';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { RoleGuard } from '@/components/RoleGuard';
+import { AdminGuard } from '@/components/AdminGuard';
 import { SEO } from '@/components/SEO';
 
 // Sections (Lazy Loaded)
@@ -139,17 +141,18 @@ function AppContent({ isPWA }: { isPWA: boolean }) {
   }
 
   // ── Protected admin views ───────────────────────────────────────────────────
-  // NOTE: RoleGuard bypassed while using temporary password-based admin login.
-  // The password check in LoginPage.tsx IS the auth. Re-enable RoleGuard once
-  // Supabase magic-link auth is restored.
   if (currentView === 'admin-dashboard') {
     return (
-      <PageWrapper viewKey={currentView}><AdminDashboard /></PageWrapper>
+      <AdminGuard>
+        <PageWrapper viewKey={currentView}><AdminDashboard /></PageWrapper>
+      </AdminGuard>
     );
   }
   if (currentView === 'admin-marketers') {
     return (
-      <PageWrapper viewKey={currentView}><MarketersPage /></PageWrapper>
+      <AdminGuard>
+        <PageWrapper viewKey={currentView}><MarketersPage /></PageWrapper>
+      </AdminGuard>
     );
   }
 
@@ -209,16 +212,19 @@ function AppContent({ isPWA }: { isPWA: boolean }) {
 
 function App() {
   const { isPWA } = usePWA();
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
   
   return (
-    <StoreProvider>
-      <SEO />
-      <SplashScreen />
-      <PWAUpdatePrompt />
-      <AdminOfflineBlocker />
-      <AppContent isPWA={isPWA} />
-      <Toaster position="top-right" richColors />
-    </StoreProvider>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <StoreProvider>
+        <SEO />
+        <SplashScreen />
+        <PWAUpdatePrompt />
+        <AdminOfflineBlocker />
+        <AppContent isPWA={isPWA} />
+        <Toaster position="top-right" richColors />
+      </StoreProvider>
+    </GoogleOAuthProvider>
   );
 }
 

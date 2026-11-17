@@ -36,7 +36,7 @@ export default defineConfig({
         ]
       },
       injectManifest: {
-        injectionPoint: undefined
+        injectionPoint: 'self.__WB_MANIFEST',
       }
     })
   ],
@@ -50,7 +50,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          supabase: ['@supabase/supabase-js'],
           animations: ['gsap', 'animejs', 'lottie-react'],
           icons: ['lucide-react'],
         }

@@ -157,3 +157,20 @@ export type View =
   | 'settings'
   | 'recent-orders'
   | 'admin-blog';
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name?: string | null;
+  role: 'customer' | 'admin' | 'handler';
+  avatar_url?: string | null;
+  created_at?: string;
+  user_metadata?: {
+    full_name?: string;
+    name?: string;
+    [key: string]: any;
+  };
+}
+
+export type User = AuthUser;
+

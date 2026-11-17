@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
 import api from '@/lib/api';
-import { supabaseHandler } from '@/lib/supabase';
 import { Package, Loader2, ArrowLeft } from 'lucide-react';
 
 export function HandlerLoginPage() {
@@ -10,14 +9,13 @@ export function HandlerLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ── Redirect if already logged in ──
+  // ── Redirect if already logged in as handler ──
   useEffect(() => {
+    let cancelled = false;
     const checkSession = async () => {
-      const { data: { session } } = await supabaseHandler.auth.getSession();
-      if (!session) return;
-
       try {
-        const meRes = await api.get('/auth/me');
+        const meRes = await api.get('/auth/me?role=handler');
+        if (cancelled) return;
         if (meRes.data?.success && meRes.data.data?.role === 'handler') {
           const params = new URLSearchParams(window.location.search);
           const from = params.get('from');
@@ -28,46 +26,44 @@ export function HandlerLoginPage() {
             setCurrentView('handler-portal');
             window.history.pushState({}, '', '/handler');
           }
-        } else {
-          await supabaseHandler.auth.signOut();
         }
       } catch {
-        await supabaseHandler.auth.signOut();
+        // Not logged in as handler
       }
     };
-    void checkSession();
+    checkSession();
+    return () => { cancelled = true; };
   }, [setCurrentView]);
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!phone.trim()) return;
+
     setLoading(true);
     setError('');
 
     try {
-      const dummyEmail = `${phone}@handler.haifly.com`;
-      const { data, error: authError } = await supabaseHandler.auth.signInWithPassword({
-        email: dummyEmail,
-        password: phone,
+      const res = await api.post('/auth/handler-login', {
+        phone: phone.trim(),
       });
 
-      
-      if (authError) {
-        throw new Error('Invalid phone number or not registered as handler');
-      }
+      if (res.data?.success && res.data.data?.role === 'handler') {
+        window.dispatchEvent(new Event('haifly_auth_changed'));
 
-      // Verify role is handler via our secure backend endpoint
-      const meRes = await api.get('/auth/me');
-      if (meRes.data?.success && meRes.data.data?.role === 'handler') {
-        setCurrentView('handler-portal');
-        window.history.pushState({}, '', '/handler');
+        const params = new URLSearchParams(window.location.search);
+        const from = params.get('from');
+
+        if (from) {
+          window.location.href = from;
+        } else {
+          setCurrentView('handler-portal');
+          window.history.pushState({}, '', '/handler');
+        }
       } else {
-        await supabaseHandler.auth.signOut();
-        throw new Error('Access denied. Handler privileges required.');
+        setError(res.data?.error || 'Invalid phone number or not registered as handler');
       }
-
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Authentication failed. Make sure your phone number is registered.');
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Authentication failed. Make sure your phone number is registered.');
     } finally {
       setLoading(false);
     }
@@ -79,8 +75,7 @@ export function HandlerLoginPage() {
       <div className="absolute top-0 w-full h-1/2 bg-[#0f5238] skew-y-6 origin-top-left -translate-y-20 z-0" />
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        
-        <button 
+        <button
           onClick={() => setCurrentView('home')}
           className="flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-8 btn-anim"
         >

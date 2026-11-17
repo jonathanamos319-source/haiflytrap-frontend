@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/hooks/useStore';
-import { supabaseAdmin, supabaseHandler, supabaseUser } from '@/lib/supabase';
 import { api } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { subscribeToPushNotifications } from '@/lib/pushNotifications';
+
 interface RoleGuardProps {
   children: React.ReactNode;
   allowedRoles: string[];
@@ -18,16 +18,8 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const { setCurrentView } = useStore();
   const [state, setState] = useState<GuardState>('loading');
 
-  const redirectHome = async () => {
-    // Sign out from relevant clients safely
-    const signouts = [];
-    if (allowedRoles.includes('admin')) signouts.push(supabaseAdmin.auth.signOut().catch(() => {}));
-    if (allowedRoles.includes('handler')) signouts.push(supabaseHandler.auth.signOut().catch(() => {}));
-    if (allowedRoles.includes('customer')) signouts.push(supabaseUser.auth.signOut().catch(() => {}));
-    await Promise.all(signouts);
-
+  const redirectHome = () => {
     setState('denied');
-    
     if (allowedRoles.includes('handler') && !allowedRoles.includes('customer')) {
       setCurrentView('handler-login');
       window.history.pushState({}, '', '/handler-login');
@@ -37,99 +29,33 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     }
   };
 
-
   useEffect(() => {
     let cancelled = false;
 
-    // Safety timeout: if auth check takes more than 6 seconds, redirect to login
-    const timeoutId = setTimeout(async () => {
-      if (!cancelled && state === 'loading') {
-        await redirectHome();
-      }
-    }, 6000);
-
     const checkAuth = async () => {
-      let session = null;
       try {
-        if (allowedRoles.includes('admin')) {
-          const { data } = await supabaseAdmin.auth.getSession();
-          if (data.session) session = data.session;
-        }
-        if (!session && allowedRoles.includes('handler')) {
-          const { data } = await supabaseHandler.auth.getSession();
-          if (data.session) session = data.session;
-        }
-        if (!session && allowedRoles.includes('customer')) {
-          const { data } = await supabaseUser.auth.getSession();
-          if (data.session) session = data.session;
-        }
-      } catch {
-        // If session retrieval fails, redirect
-        clearTimeout(timeoutId);
-        if (!cancelled) await redirectHome();
-        return;
-      }
-
-      if (cancelled) return;
-
-      // Fast-path: no session at all → redirect immediately without API call
-      if (!session?.user) {
-        clearTimeout(timeoutId);
-        await redirectHome();
-        return;
-      }
-
-      try {
-        const controller = new AbortController();
-        const apiTimeout = setTimeout(() => controller.abort(), 5000);
-
-        const res = await api.get('/auth/me', { signal: controller.signal });
-        clearTimeout(apiTimeout);
-        clearTimeout(timeoutId);
+        const preferredRole = allowedRoles[0] || 'customer';
+        const res = await api.get(`/auth/me?role=${preferredRole}`);
 
         if (cancelled) return;
 
         if (res.data?.success && allowedRoles.includes(res.data.data?.role)) {
           setState('granted');
-          subscribeToPushNotifications(res.data.data.role, session.user.id, session.user.email);
+          subscribeToPushNotifications(res.data.data.role, res.data.data.id, res.data.data.email);
         } else {
-          await redirectHome();
+          redirectHome();
         }
       } catch {
-        clearTimeout(timeoutId);
-        if (!cancelled) await redirectHome();
+        if (!cancelled) redirectHome();
       }
     };
 
     checkAuth();
 
-    const subs: any[] = [];
-    if (allowedRoles.includes('admin')) {
-      const { data: { subscription } } = supabaseAdmin.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' && !cancelled) redirectHome();
-      });
-      subs.push(subscription);
-    }
-    if (allowedRoles.includes('handler')) {
-      const { data: { subscription } } = supabaseHandler.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' && !cancelled) redirectHome();
-      });
-      subs.push(subscription);
-    }
-    if (allowedRoles.includes('customer')) {
-      const { data: { subscription } } = supabaseUser.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' && !cancelled) redirectHome();
-      });
-      subs.push(subscription);
-    }
-
     return () => {
       cancelled = true;
-      clearTimeout(timeoutId);
-      subs.forEach(s => s.unsubscribe());
     };
-
-  }, [allowedRoles]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [allowedRoles]);
 
   if (state === 'loading') {
     return (

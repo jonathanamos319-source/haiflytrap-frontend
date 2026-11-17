@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/hooks/useStore';
-import { supabaseAdmin } from '@/lib/supabase';
 import { api } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { subscribeToPushNotifications } from '@/lib/pushNotifications';
+
 interface AdminGuardProps {
   children: React.ReactNode;
 }
@@ -14,74 +14,45 @@ type GuardState = 'loading' | 'granted' | 'denied';
  * AdminGuard – wraps all admin-only views.
  *
  * Security model:
- *   - Retrieves Supabase session on mount
- *   - Queries public.users to confirm role === 'admin'
- *   - Shows a spinner while checking
- *   - Renders children only when confirmed admin
- *   - On failure: signs out → redirects to HOMEPAGE (never reveals admin path)
- *   - Listens for auth state changes (token refresh, sign out)
+ *   - Calls /auth/me with credentials
+ *   - Verifies role === 'admin'
+ *   - On failure: redirects to HOMEPAGE (never reveals admin path)
  */
 export function AdminGuard({ children }: AdminGuardProps) {
   const { setCurrentView } = useStore();
   const [state, setState] = useState<GuardState>('loading');
 
-  const redirectHome = async () => {
-    await supabaseAdmin.auth.signOut();
+  const redirectHome = () => {
     setState('denied');
     setCurrentView('home');
     window.history.pushState({}, '', '/');
   };
 
-
   useEffect(() => {
     let cancelled = false;
 
     const checkAuth = async () => {
-      const { data: { session } } = await supabaseAdmin.auth.getSession();
-
-
-      if (cancelled) return;
-
-      if (!session?.user) {
-        await redirectHome();
-        return;
-      }
-
       try {
-        const res = await api.get('/auth/me');
+        const res = await api.get('/auth/me?role=admin');
         if (cancelled) return;
 
         if (res.data?.success && res.data.data?.role === 'admin') {
           setState('granted');
-          subscribeToPushNotifications('admin', session.user.id, session.user.email);
+          subscribeToPushNotifications('admin', res.data.data.id, res.data.data.email);
         } else {
-          await redirectHome();
+          redirectHome();
         }
       } catch {
-        if (!cancelled) await redirectHome();
+        if (!cancelled) redirectHome();
       }
     };
 
     checkAuth();
 
-    // Re-check on auth state change — handle token refresh & explicit sign-out
-    const { data: { subscription } } = supabaseAdmin.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (cancelled) return;
-        if (!session) {
-          setState('denied');
-          setCurrentView('home');
-          window.history.pushState({}, '', '/');
-        }
-      }
-    );
-
-
     return () => {
       cancelled = true;
-      subscription.unsubscribe();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Loading spinner
   if (state === 'loading') {

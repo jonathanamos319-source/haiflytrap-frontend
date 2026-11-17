@@ -10,7 +10,6 @@ import {
   Copy, Link2, FileText,
 } from 'lucide-react';
 import { AdminBlogPage } from './AdminBlogPage';
-import { supabaseAdmin } from '@/lib/supabase';
 
 // ─── SHARED DATA ──────────────────────────────────────────────────────────────
 
@@ -2147,36 +2146,6 @@ export function AdminDashboard() {
     if ('Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
-
-    // Subscribe to new orders via Supabase Realtime
-    const channel = supabaseAdmin
-      .channel('admin-orders-alerts')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'orders' },
-        (payload) => {
-          console.log('Realtime Order Event:', payload);
-          const order = payload.new;
-
-          if ('Notification' in window && Notification.permission === 'granted') {
-            const notif = new Notification('🚨 New Order Received!', {
-              body: `Order ${order.tracking_number}\nAmount: ₦${Number(order.total).toLocaleString()}\nCustomer: ${order.customer_name}`,
-              icon: '/icons/icon-192x192.png' // Usually fallback to default if not found
-            });
-
-            // Optional: Play a short sound
-            try {
-              const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-              audio.play().catch(() => { });
-            } catch (e) { }
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabaseAdmin.removeChannel(channel);
-    };
   }, []);
 
   const pageTitle: Record<string, string> = {

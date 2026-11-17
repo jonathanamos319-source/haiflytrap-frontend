@@ -3,14 +3,12 @@ import { User, Search, Menu, X, ArrowLeft, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Lottie from 'lottie-react';
 import cartAnimation from '../lotties/system-solid-6-shopping-hover-pinch.json';
-import { supabaseUser } from '@/lib/supabase';
 
 export function Navbar() {
-  const { cartCount, setCurrentView, currentView, searchQuery, setSearchQuery, isBackendDown, isCheckingBackend } = useStore();
+  const { cartCount, setCurrentView, currentView, searchQuery, setSearchQuery, isBackendDown, isCheckingBackend, user } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,18 +16,8 @@ export function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
 
-    supabaseUser.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const { data: { subscription } } = supabaseUser.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      subscription.unsubscribe();
     };
   }, []);
 
@@ -126,7 +114,7 @@ export function Navbar() {
                   >
                     Blog
                   </button>
-                  {session ? (
+                  {user ? (
                     <>
                       <button 
                         onClick={() => setCurrentView('recent-orders')} 
@@ -276,7 +264,7 @@ export function Navbar() {
               >
                 <span>Blog</span>
               </button>
-              {session ? (
+              {user ? (
                 <>
                   <button
                     onClick={() => {

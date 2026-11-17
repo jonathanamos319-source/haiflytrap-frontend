@@ -1,7 +1,6 @@
 import { useStore } from '@/hooks/useStore';
-import { Home, ShoppingBag, Star, MoreHorizontal, User, ShoppingCart, BookOpen, MapPin, X } from 'lucide-react';
+import { Home, ShoppingBag, Star, MoreHorizontal, User as UserIcon, ShoppingCart, BookOpen, MapPin, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { supabaseUser } from '@/lib/supabase';
 import type { View } from '@/types';
 
 const W = 320;
@@ -39,18 +38,11 @@ const noHL: React.CSSProperties = {
 };
 
 export function BottomNav() {
-  const { currentView, setCurrentView, cartCount } = useStore();
-  const [session, setSession] = useState<any>(null);
+  const { currentView, setCurrentView, cartCount, user } = useStore();
   const [activeIndex, setActiveIndex] = useState(0);
   const [notchX, setNotchX] = useState<number>(W / 5 / 2);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    supabaseUser.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabaseUser.auth.onAuthStateChange((_e, s) => setSession(s));
-    return () => subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -69,7 +61,7 @@ export function BottomNav() {
     { id: 'shop', icon: ShoppingBag, label: 'Shop', view: 'shop' },
     { id: 'reviews', icon: Star, label: 'Reviews', view: 'reviews' },
     { id: 'more', icon: MoreHorizontal, label: 'More', view: '__more__' },
-    { id: 'account', icon: User, label: 'Account', view: session ? 'settings' : 'customer-login' },
+    { id: 'account', icon: UserIcon, label: 'Account', view: user ? 'settings' : 'customer-login' },
   ];
 
   const getActiveIndex = () => {
@@ -87,7 +79,7 @@ export function BottomNav() {
     const idx = getActiveIndex();
     setActiveIndex(idx);
     setNotchX((W / NAV_ITEMS.length) * idx + (W / NAV_ITEMS.length) / 2);
-  }, [currentView, session]);
+  }, [currentView, user]);
 
   const segW = W / NAV_ITEMS.length;
 
