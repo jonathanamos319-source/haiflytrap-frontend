@@ -25,7 +25,7 @@ export const subscribeToPushNotifications = async (userType: string, userId?: st
     const registration = await navigator.serviceWorker.register('/sw.js');
     console.log('Service Worker registered successfully:', registration.scope);
 
-    const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+    const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BG3qS2NmwV9ZorBs2uwF98rpWn2eTlg7XoEuigT2QWVhSP5fAdfMYwd4zFFgDM17DkpsNGontjMOQfCwqwc9U-E';
     if (!publicVapidKey) {
       console.error('VITE_VAPID_PUBLIC_KEY is missing');
       return;

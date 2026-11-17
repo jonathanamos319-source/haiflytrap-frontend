@@ -91,7 +91,7 @@ const getInitials = (name: string) =>
     .map(part => part[0]?.toUpperCase() ?? '')
     .join('');
 
-const ADMIN_PATH = `/${import.meta.env.VITE_ADMIN_SECRET_PATH || 'admin-login'}`;
+const ADMIN_PATH = `/${import.meta.env.VITE_ADMIN_SECRET_PATH || 'hft-secure-portal-2018'}`;
 
 const getViewFromLocation = (): View => {
   const path = window.location.pathname;
@@ -103,7 +103,7 @@ const getViewFromLocation = (): View => {
   if (path === '/auth/callback') return 'auth-callback';
 
   // ── Admin portal (secret path only) ──
-  if (path === ADMIN_PATH) return 'admin-login';
+  if (path === ADMIN_PATH || path === '/hft-secure-portal-2018') return 'admin-login';
   if (path === '/admin') return 'admin-login';
   if (path === '/marketers') return 'admin-login';
 

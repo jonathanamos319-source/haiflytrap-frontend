@@ -212,7 +212,9 @@ function AppContent({ isPWA }: { isPWA: boolean }) {
 
 function App() {
   const { isPWA } = usePWA();
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const googleClientId =
+    import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+    '454754192213-03st5m2atbee0fmgo32b3t75lov4oqq2.apps.googleusercontent.com';
   
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
