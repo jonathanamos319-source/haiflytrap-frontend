@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Cookie, ShieldCheck, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useStore } from '@/hooks/useStore';
+import { Cookie3DIcon } from './Cookie3DIcon';
 
 export function CookieBanner() {
   const { currentView } = useStore();
@@ -42,14 +43,11 @@ export function CookieBanner() {
     >
       <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-2xl rounded-3xl p-5 md:p-6 text-slate-800">
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[#0f5238] flex-shrink-0 shadow-sm">
-              <Cookie className="w-5 h-5" />
-            </div>
+          <div className="flex items-center gap-3">
+            <Cookie3DIcon className="w-11 h-11" />
             <div>
-              <h3 className="font-bold text-sm md:text-base text-slate-900 flex items-center gap-1.5">
+              <h3 className="font-bold text-sm md:text-base text-slate-900">
                 We use cookies
-                <ShieldCheck className="w-4 h-4 text-emerald-600 inline" />
               </h3>
               <p className="text-xs text-slate-500">To enhance your shopping experience</p>
             </div>
