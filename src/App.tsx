@@ -41,6 +41,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { usePWA } from '@/hooks/usePWA';
 import { SplashScreen } from '@/components/SplashScreen';
 import { BottomNav } from '@/components/BottomNav';
+import { CookieBanner } from '@/components/CookieBanner';
 
 function PWAUpdatePrompt() {
   const {
@@ -224,6 +225,7 @@ function App() {
         <PWAUpdatePrompt />
         <AdminOfflineBlocker />
         <AppContent isPWA={isPWA} />
+        <CookieBanner />
         <Toaster position="top-right" richColors />
       </StoreProvider>
     </GoogleOAuthProvider>
