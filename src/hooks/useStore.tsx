@@ -459,11 +459,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Rehydrate Sessions on mount & listen to auth changes ──
+  // ── Rehydrate Sessions on mount & listen to auth changes (Customer Storefront Only) ──
   const recheckUser = useCallback(async () => {
     try {
-      const res = await api.get('/auth/me');
-      if (res.data?.success && res.data.data) {
+      const res = await api.get('/auth/me?role=customer');
+      if (res.data?.success && res.data.data && res.data.data.role === 'customer') {
         const u = res.data.data;
         setUser({
           id: u.id,

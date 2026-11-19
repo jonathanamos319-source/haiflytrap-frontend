@@ -22,9 +22,9 @@ export function CustomerLoginPage() {
     let cancelled = false;
     const checkSession = async () => {
       try {
-        const res = await api.get('/auth/me');
+        const res = await api.get('/auth/me?role=customer');
         if (cancelled) return;
-        if (res.data?.success && res.data.data && step !== 'success') {
+        if (res.data?.success && res.data.data && res.data.data.role === 'customer' && step !== 'success') {
           const params = new URLSearchParams(window.location.search);
           const from = params.get('from');
           if (from) {

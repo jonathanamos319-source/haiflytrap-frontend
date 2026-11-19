@@ -29,15 +29,22 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// Admin and Handler APIs MUST ALWAYS bypass cache
+// Auth, Admin, and Handler APIs MUST ALWAYS bypass cache (strictly NetworkOnly)
 registerRoute(
-  ({ url }) => url.pathname.startsWith('/api/v1/admin') || url.pathname.startsWith('/api/v1/handler'),
+  ({ url }) =>
+    url.pathname.startsWith('/api/v1/auth') ||
+    url.pathname.startsWith('/api/v1/admin') ||
+    url.pathname.startsWith('/api/v1/handler'),
   new NetworkOnly()
 );
 
-// Customer APIs use Network First, fallback to cache
+// Customer public data APIs (products, reviews, blogs) use Network First, fallback to cache
 registerRoute(
-  ({ url }) => url.pathname.startsWith('/api/v1/') && !url.pathname.startsWith('/api/v1/admin') && !url.pathname.startsWith('/api/v1/handler'),
+  ({ url }) =>
+    url.pathname.startsWith('/api/v1/') &&
+    !url.pathname.startsWith('/api/v1/auth') &&
+    !url.pathname.startsWith('/api/v1/admin') &&
+    !url.pathname.startsWith('/api/v1/handler'),
   new NetworkFirst({
     cacheName: 'customer-api-cache',
     plugins: [

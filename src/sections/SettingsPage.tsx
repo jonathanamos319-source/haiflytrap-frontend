@@ -4,12 +4,12 @@ import { User, LogOut, Trash2, ShieldAlert, Package, ChevronRight, X, AlertCircl
 import api from '@/lib/api';
 
 export function SettingsPage() {
-  const { logout, setCurrentView, user } = useStore();
+  const { logout, setCurrentView, user, isLoadingUser } = useStore();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [errorModal, setErrorModal] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const displayName = user?.user_metadata?.full_name || 'My Account';
+  const displayName = user?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || 'Customer';
   const displayEmail = user?.email || 'Manage your account preferences';
 
   const handleDeleteAccount = async () => {
@@ -19,17 +19,47 @@ export function SettingsPage() {
       if (res.data?.success) {
         logout();
       } else {
-        setErrorModal('Failed to delete account. Please try again later.');
+        setErrorModal(res.data?.error || 'Failed to delete account. Please try again later.');
         setShowDeleteConfirm(false);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      setErrorModal('An error occurred while deleting your account.');
+      setErrorModal(e.response?.data?.error || 'An error occurred while deleting your account.');
       setShowDeleteConfirm(false);
     } finally {
       setIsDeleting(false);
     }
   };
+
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] pt-12 pb-24 px-4 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-forest border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'customer') {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] pt-16 pb-24 px-4 flex items-center justify-center">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-sm border border-outline-variant">
+          <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center text-forest mx-auto mb-4">
+            <User className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold text-forest mb-2">Customer Account</h2>
+          <p className="text-muted-foreground text-sm mb-6">
+            Please sign in to your customer account to view your recent orders and manage your preferences.
+          </p>
+          <button
+            onClick={() => setCurrentView('customer-login')}
+            className="w-full py-3.5 bg-forest text-white font-bold rounded-2xl hover:bg-forest/90 transition-colors btn-anim"
+          >
+            Sign In / Register
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] pt-12 pb-24 px-4">
