@@ -16,12 +16,27 @@ export const api = axios.create({
   },
 });
 
-// Attach role hint header based on the active path so backend knows which session cookie to prioritize
+// Attach role hint header based on the active path and request target so backend knows which session cookie to prioritize
 api.interceptors.request.use((config) => {
   const path = window.location.pathname;
-  if (path.startsWith('/admin') || path.startsWith('/marketers') || path.includes('admin')) {
+  const adminSecret = import.meta.env.VITE_ADMIN_SECRET_PATH || 'hft-secure-portal-2018';
+  const url = (config.url || '').toLowerCase();
+  const method = (config.method || 'get').toLowerCase();
+
+  // Any admin dashboard view or admin mutation (POST/PATCH/DELETE on products/blogs or /admin endpoints)
+  const isAdminAction =
+    url.startsWith('/admin') ||
+    ((url.startsWith('/products') || url.startsWith('/blogs')) && method !== 'get');
+
+  if (
+    isAdminAction ||
+    path.startsWith('/admin') ||
+    path.startsWith('/marketers') ||
+    path.includes('admin') ||
+    path.includes(adminSecret)
+  ) {
     config.headers['X-Auth-Role'] = 'admin';
-  } else if (path.startsWith('/handler')) {
+  } else if (path.startsWith('/handler') || url.startsWith('/handler')) {
     config.headers['X-Auth-Role'] = 'handler';
   } else {
     config.headers['X-Auth-Role'] = 'customer';

@@ -50,7 +50,7 @@ interface StoreContextType {
   addHandler: (handler: Omit<HandlerProfile, 'id' | 'initials' | 'assignedOrders' | 'completedToday'>) => Promise<void>;
   updateHandler: (id: string, updates: Partial<HandlerProfile>) => Promise<void>;
   removeHandler: (id: string) => Promise<void>;
-  updateProduct: (id: string, updates: Partial<Product>) => void;
+  updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
 
   // Blogs
@@ -710,11 +710,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ── Product updates (admin, optimistic) ──
-  const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
+  const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-    api.patch(`/products/${id}`, updates).catch(() => {
-      // Revert handled by admin reload if needed
-    });
+    try {
+      const res = await api.patch(`/products/${id}`, updates);
+      if (res.data?.success && res.data.data) {
+        const saved = res.data.data;
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...saved } : p));
+      }
+    } catch (err: any) {
+      console.error('Failed to update product on backend:', err);
+      // Re-fetch products from server to revert to source of truth
+      try {
+        const refetch = await api.get('/products');
+        if (refetch.data?.success && Array.isArray(refetch.data.data)) {
+          setProducts(refetch.data.data);
+        }
+      } catch {}
+      throw err;
+    }
   }, []);
 
   const addProduct = useCallback(async (product: Omit<Product, 'id'>) => {

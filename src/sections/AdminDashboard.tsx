@@ -910,16 +910,21 @@ function ProductsView() {
                   </button>
                   <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={() => {
-                        updateProduct(selectedProduct.id, {
-                          name: selectedProduct.name,
-                          price: selectedProduct.price,
-                          manualOutOfStock: selectedProduct.manualOutOfStock,
-                          isLimited: selectedProduct.isLimited
-                        });
-                        setSelectedProduct(null);
-                        setToast('✅ Product updated successfully!');
-                        setTimeout(() => setToast(null), 3000);
+                      onClick={async () => {
+                        try {
+                          await updateProduct(selectedProduct.id, {
+                            name: selectedProduct.name,
+                            price: Number(selectedProduct.price),
+                            manualOutOfStock: selectedProduct.manualOutOfStock,
+                            isLimited: selectedProduct.isLimited
+                          });
+                          setSelectedProduct(null);
+                          setToast('✅ Product updated successfully!');
+                          setTimeout(() => setToast(null), 3000);
+                        } catch (err: any) {
+                          setToast(`❌ Failed to save: ${err.response?.data?.error || err.message}`);
+                          setTimeout(() => setToast(null), 4000);
+                        }
                       }}
 
                       className="flex items-center justify-center gap-2 py-3 bg-slate-800 text-white rounded-2xl text-sm font-semibold hover:bg-slate-900 transition-colors btn-anim"
