@@ -295,14 +295,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           api.get('/blogs'),
         ]);
         if (resProducts.data?.success && Array.isArray(resProducts.data.data)) {
-          const apiProducts = resProducts.data.data;
-          setProducts(prev => {
-            const merged = [...apiProducts];
-            DEFAULT_PRODUCTS.forEach(dp => {
-              if (!merged.some(p => p.id === dp.id)) merged.push(dp);
-            });
-            return merged;
-          });
+          // Database is single source of truth: do not resurrect deleted products
+          setProducts(resProducts.data.data);
         }
         if (resBlogs.data?.success && Array.isArray(resBlogs.data.data)) {
           setBlogs(resBlogs.data.data);
@@ -431,17 +425,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           api.get('/blogs')
         ]);
         if (!cancelled && resProducts.data?.success && Array.isArray(resProducts.data.data)) {
-          const apiProducts = resProducts.data.data;
-          // Merge API products with defaults, preferring API versions if IDs match
-          setProducts(prev => {
-            const merged = [...apiProducts];
-            DEFAULT_PRODUCTS.forEach(dp => {
-              if (!merged.some(p => p.id === dp.id)) {
-                merged.push(dp);
-              }
-            });
-            return merged;
-          });
+          // Database is single source of truth: do not resurrect deleted products
+          setProducts(resProducts.data.data);
         }
         if (!cancelled && resBlogs.data?.success && Array.isArray(resBlogs.data.data)) {
           setBlogs(resBlogs.data.data);
