@@ -7,7 +7,7 @@ import {
   FileDown, ArrowUpRight, ArrowDownRight, ExternalLink, Menu, X,
   Plus, Edit2, Trash2, Eye, Filter, Save, AlertCircle, Check,
   Lock, ToggleLeft, ToggleRight, Image as ImageIcon, UploadCloud, Sparkles,
-  Copy, Link2, FileText,
+  Copy, Link2, FileText, Truck,
 } from 'lucide-react';
 import { AdminBlogPage } from './AdminBlogPage';
 
@@ -53,8 +53,11 @@ const statusStyle = (status: string) => {
   const map: Record<string, string> = {
     delivered: 'bg-green-50 text-green-700 border border-green-200',
     processing: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    packed: 'bg-purple-50 text-purple-700 border border-purple-200',
     pending: 'bg-slate-100 text-slate-600 border border-slate-200',
+    'pending-payment': 'bg-amber-50 text-amber-700 border border-amber-200',
     'in-transit': 'bg-blue-50 text-blue-700 border border-blue-200',
+    cancelled: 'bg-red-50 text-red-700 border border-red-200',
     active: 'bg-green-50 text-green-700 border border-green-200',
     inactive: 'bg-slate-100 text-slate-500 border border-slate-200',
     'out-of-stock': 'bg-red-50 text-red-600 border border-red-200',
@@ -328,7 +331,19 @@ function OrdersView() {
                     <span className="text-[9px] font-black text-amber-600 tracking-tighter uppercase leading-none mt-0.5">REF: {(order as { couponCode?: string }).couponCode}</span>
                   )}
                 </div>
-                <span className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize ${statusStyle(order.status)}`}>{order.status}</span>
+                <select
+                  value={order.status}
+                  onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                  className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize border cursor-pointer focus:outline-none transition-colors ${statusStyle(order.status)}`}
+                >
+                  <option value="pending" className="bg-white text-slate-700">Pending</option>
+                  <option value="pending-payment" className="bg-white text-slate-700">Pending Payment</option>
+                  <option value="processing" className="bg-white text-slate-700">Processing</option>
+                  <option value="packed" className="bg-white text-slate-700">Packed</option>
+                  <option value="in-transit" className="bg-white text-slate-700">In Transit</option>
+                  <option value="delivered" className="bg-white text-slate-700">Delivered</option>
+                  <option value="cancelled" className="bg-white text-slate-700">Cancelled</option>
+                </select>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
@@ -347,6 +362,14 @@ function OrdersView() {
                 {['pending', 'pending-payment'].includes(order.status) ? (
                   <button onClick={() => updateOrderStatus(order.id, 'processing')} className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#0f5238] text-white rounded-lg text-xs font-semibold hover:bg-[#0f5238]/90 transition-colors btn-anim">
                     <Check className="w-3.5 h-3.5" /> Approve Payment
+                  </button>
+                ) : ['processing', 'packed'].includes(order.status) ? (
+                  <button onClick={() => updateOrderStatus(order.id, 'in-transit')} className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors btn-anim">
+                    <Truck className="w-3.5 h-3.5" /> Move to In Transit
+                  </button>
+                ) : order.status === 'in-transit' ? (
+                  <button onClick={() => updateOrderStatus(order.id, 'delivered')} className="flex-1 flex items-center justify-center gap-2 py-2 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 transition-colors btn-anim">
+                    <Check className="w-3.5 h-3.5" /> Mark Delivered
                   </button>
                 ) : (
                   <>
@@ -399,20 +422,42 @@ function OrdersView() {
                   <td className="px-4 py-3.5 text-sm font-bold text-slate-800 whitespace-nowrap">{order.amount}</td>
                   <td className="px-4 py-3.5 text-xs text-slate-400 whitespace-nowrap">{order.date}</td>
                   <td className="px-4 py-3.5">
-                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize whitespace-nowrap ${statusStyle(order.status)}`}>{order.status}</span>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                      className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize border cursor-pointer focus:outline-none transition-colors ${statusStyle(order.status)}`}
+                    >
+                      <option value="pending" className="bg-white text-slate-700">Pending</option>
+                      <option value="pending-payment" className="bg-white text-slate-700">Pending Payment</option>
+                      <option value="processing" className="bg-white text-slate-700">Processing</option>
+                      <option value="packed" className="bg-white text-slate-700">Packed</option>
+                      <option value="in-transit" className="bg-white text-slate-700">In Transit</option>
+                      <option value="delivered" className="bg-white text-slate-700">Delivered</option>
+                      <option value="cancelled" className="bg-white text-slate-700">Cancelled</option>
+                    </select>
                   </td>
                   <td className="px-4 py-3.5">
-                    <div className="flex gap-1.5">
-                      {['pending', 'pending-payment'].includes(order.status) ? (
-                        <button onClick={() => updateOrderStatus(order.id, 'processing')} title="Approve Payment" className="p-1.5 bg-[#0f5238] hover:bg-[#0f5238]/90 rounded-lg transition-colors no-anim">
-                          <Check className="w-3.5 h-3.5 text-white" />
+                    <div className="flex gap-1.5 items-center">
+                      {['pending', 'pending-payment'].includes(order.status) && (
+                        <button onClick={() => updateOrderStatus(order.id, 'processing')} title="Approve Payment" className="flex items-center gap-1 px-2.5 py-1.5 bg-[#0f5238] hover:bg-[#0f5238]/90 text-white rounded-lg text-xs font-semibold transition-colors no-anim">
+                          <Check className="w-3 h-3 text-white" />
+                          <span>Approve</span>
                         </button>
-                      ) : (
-                        <>
-                          <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors no-anim"><Eye className="w-3.5 h-3.5 text-slate-400" /></button>
-                          <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors no-anim"><Download className="w-3.5 h-3.5 text-slate-400" /></button>
-                        </>
                       )}
+                      {['processing', 'packed'].includes(order.status) && (
+                        <button onClick={() => updateOrderStatus(order.id, 'in-transit')} title="Dispatch / Move to In Transit" className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors no-anim">
+                          <Truck className="w-3 h-3 text-white" />
+                          <span>Dispatch</span>
+                        </button>
+                      )}
+                      {order.status === 'in-transit' && (
+                        <button onClick={() => updateOrderStatus(order.id, 'delivered')} title="Confirm Delivered" className="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-semibold transition-colors no-anim">
+                          <Check className="w-3 h-3 text-white" />
+                          <span>Deliver</span>
+                        </button>
+                      )}
+                      <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors no-anim" title="View"><Eye className="w-3.5 h-3.5 text-slate-400" /></button>
+                      <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors no-anim" title="Download Receipt"><Download className="w-3.5 h-3.5 text-slate-400" /></button>
                     </div>
                   </td>
                 </tr>
@@ -1733,7 +1778,7 @@ function OperationsSettingsView() {
 }
 
 function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: string) => void }) {
-  const { marketers, orders } = useStore();
+  const { marketers, orders, updateOrderStatus } = useStore();
   const [selectedQuarter, setSelectedQuarter] = useState('Q4 2024');
   const [activeOrderTab, setActiveOrderTab] = useState<typeof orderTabs[number]>('All');
   const [orderPage, setOrderPage] = useState(1);
@@ -1939,7 +1984,19 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
                     <span className="text-[9px] font-black text-amber-600 tracking-tighter uppercase leading-none mt-0.5">REF: {(order as any).couponCode}</span>
                   )}
                 </div>
-                <span className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize ${statusStyle(order.status)}`}>{order.status}</span>
+                <select
+                  value={order.status}
+                  onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                  className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize border cursor-pointer focus:outline-none transition-colors ${statusStyle(order.status)}`}
+                >
+                  <option value="pending" className="bg-white text-slate-700">Pending</option>
+                  <option value="pending-payment" className="bg-white text-slate-700">Pending Payment</option>
+                  <option value="processing" className="bg-white text-slate-700">Processing</option>
+                  <option value="packed" className="bg-white text-slate-700">Packed</option>
+                  <option value="in-transit" className="bg-white text-slate-700">In Transit</option>
+                  <option value="delivered" className="bg-white text-slate-700">Delivered</option>
+                  <option value="cancelled" className="bg-white text-slate-700">Cancelled</option>
+                </select>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <div className="flex items-center gap-2">
@@ -1992,7 +2049,21 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
                   <td className="px-5 py-3.5 text-xs text-slate-500">{order.city}</td>
                   <td className="px-5 py-3.5 text-sm font-bold text-slate-800 whitespace-nowrap">{order.amount}</td>
                   <td className="px-5 py-3.5 text-xs text-slate-400 whitespace-nowrap">{order.date}</td>
-                  <td className="px-5 py-3.5"><span className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize whitespace-nowrap ${statusStyle(order.status)}`}>{order.status}</span></td>
+                  <td className="px-5 py-3.5">
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                      className={`text-[10px] font-semibold px-2 py-1 rounded-full capitalize border cursor-pointer focus:outline-none transition-colors ${statusStyle(order.status)}`}
+                    >
+                      <option value="pending" className="bg-white text-slate-700">Pending</option>
+                      <option value="pending-payment" className="bg-white text-slate-700">Pending Payment</option>
+                      <option value="processing" className="bg-white text-slate-700">Processing</option>
+                      <option value="packed" className="bg-white text-slate-700">Packed</option>
+                      <option value="in-transit" className="bg-white text-slate-700">In Transit</option>
+                      <option value="delivered" className="bg-white text-slate-700">Delivered</option>
+                      <option value="cancelled" className="bg-white text-slate-700">Cancelled</option>
+                    </select>
+                  </td>
                   <td className="px-5 py-3.5">
                     <button className="flex items-center gap-1 text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50 hover:border-slate-300 transition-all">
                       <Download className="w-3 h-3" /> Download
