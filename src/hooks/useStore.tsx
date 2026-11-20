@@ -77,6 +77,7 @@ interface StoreContextType {
   isBackendDown: boolean;
   isCheckingBackend: boolean;
   isRetrying: boolean;
+  activeVisitors: number;
 }
 
 
@@ -238,6 +239,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isBackendDown, setIsBackendDown] = useState(false);
   const [isCheckingBackend, setIsCheckingBackend] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [activeVisitors, setActiveVisitors] = useState<number>(1);
+
+  // ── Heartbeat to Redis for live visitor metrics ──
+  useEffect(() => {
+    let visitorId = localStorage.getItem('hft_vid');
+    if (!visitorId) {
+      visitorId = 'v_' + Math.random().toString(36).substring(2, 10);
+      try {
+        localStorage.setItem('hft_vid', visitorId);
+      } catch {}
+    }
+
+    const sendHeartbeat = () => {
+      api.post('/health/heartbeat', { visitorId }).catch(() => {});
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ── Backend Health Check ──
   // Refs used inside the health-check effect so they never go stale
@@ -567,9 +588,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    const fetchActiveVisitors = async () => {
+      try {
+        const res = await api.get('/health/active-visitors');
+        if (res.data?.success && typeof res.data.count === 'number') {
+          setActiveVisitors(res.data.count);
+        }
+      } catch {}
+    };
+
     void fetchOrders();
+    void fetchActiveVisitors();
+
     intervalId = window.setInterval(() => {
       void fetchOrders();
+      void fetchActiveVisitors();
     }, 15000);
 
     return () => {
@@ -1092,6 +1125,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         isBackendDown,
         isCheckingBackend,
         isRetrying,
+        activeVisitors,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStore } from '@/hooks/useStore';
 import {
   LayoutDashboard, ShoppingCart, Package, Users, Settings,
@@ -40,9 +40,9 @@ const orderTabs = ['All', 'Delivered', 'Processing', 'Pending', 'In-Transit'] as
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
-function downloadTableAsPDF(quarter: string) {
-  const rows = revenueData[quarter];
-  const html = `<html><head><title>Revenue Report - ${quarter}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111}h1{font-size:22px;margin-bottom:4px}p{color:#666;font-size:13px;margin-bottom:24px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px 12px;background:#f5f5f5;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#555}td{padding:12px;border-bottom:1px solid #eee;font-size:14px}.up{color:#16a34a}.down{color:#dc2626}tfoot td{font-weight:bold;background:#f9f9f9}</style></head><body><h1>Revenue Report — ${quarter}</h1><p>Generated on ${new Date().toLocaleDateString('en-NG', { dateStyle: 'long' })} · Haifly Trap Admin</p><table><thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg. Value</th><th>Growth</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.month}</td><td>${r.orders}</td><td>${r.revenue}</td><td>${r.avg}</td><td class="${r.trend}">${r.growth}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td>${rows.reduce((s, r) => s + r.orders, 0)}</td><td colspan="3">&mdash;</td></tr></tfoot></table></body></html>`;
+function downloadTableAsPDF(quarter: string, customRows?: any[]) {
+  const rows = customRows || revenueData[quarter] || [];
+  const html = `<html><head><title>Revenue Report - ${quarter}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111}h1{font-size:22px;margin-bottom:4px}p{color:#666;font-size:13px;margin-bottom:24px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px 12px;background:#f5f5f5;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#555}td{padding:12px;border-bottom:1px solid #eee;font-size:14px}.up{color:#16a34a}.down{color:#dc2626}tfoot td{font-weight:bold;background:#f9f9f9}</style></head><body><h1>Revenue Report — ${quarter}</h1><p>Generated on ${new Date().toLocaleDateString('en-NG', { dateStyle: 'long' })} · Haifly Trap Admin</p><table><thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg. Value</th><th>Growth</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.month}</td><td>${r.orders}</td><td>${r.revenue}</td><td>${r.avg}</td><td class="${r.trend}">${r.growth}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td>${rows.reduce((s, r) => s + (Number(r.orders) || 0), 0)}</td><td colspan="3">&mdash;</td></tr></tfoot></table></body></html>`;
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
@@ -1778,11 +1778,153 @@ function OperationsSettingsView() {
 }
 
 function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: string) => void }) {
-  const { marketers, orders, updateOrderStatus } = useStore();
-  const [selectedQuarter, setSelectedQuarter] = useState('Q4 2024');
+  const { marketers, orders, products, updateOrderStatus, activeVisitors } = useStore();
   const [activeOrderTab, setActiveOrderTab] = useState<typeof orderTabs[number]>('All');
   const [orderPage, setOrderPage] = useState(1);
   const ordersPerPage = 4;
+
+  // ── Compute Live Dynamic Quarterly Revenue from real orders ──
+  const { availableQuarters, liveRevenueData } = useMemo(() => {
+    const validOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'pending-payment');
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    const quarterKeys = [`Q1 ${currentYear}`, `Q2 ${currentYear}`, `Q3 ${currentYear}`, `Q4 ${currentYear}`];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const store: Record<string, { month: string; orders: number; revenue: number }[]> = {};
+    quarterKeys.forEach((qk, qIdx) => {
+      store[qk] = [
+        { month: monthNames[qIdx * 3], orders: 0, revenue: 0 },
+        { month: monthNames[qIdx * 3 + 1], orders: 0, revenue: 0 },
+        { month: monthNames[qIdx * 3 + 2], orders: 0, revenue: 0 },
+      ];
+    });
+
+    for (const o of validOrders) {
+      const d = new Date(o.createdAt);
+      if (isNaN(d.getTime())) continue;
+      const y = d.getFullYear();
+      const m = d.getMonth();
+      const qNum = Math.floor(m / 3) + 1;
+      const qKey = `Q${qNum} ${y}`;
+
+      if (!store[qKey]) {
+        const startM = (qNum - 1) * 3;
+        store[qKey] = [
+          { month: monthNames[startM], orders: 0, revenue: 0 },
+          { month: monthNames[startM + 1], orders: 0, revenue: 0 },
+          { month: monthNames[startM + 2], orders: 0, revenue: 0 },
+        ];
+      }
+
+      const entry = store[qKey].find(item => item.month === monthNames[m]);
+      if (entry) {
+        entry.orders += 1;
+        entry.revenue += Number(o.total) || 0;
+      }
+    }
+
+    const result: Record<string, { month: string; orders: number; revenue: string; rawRevenue: number; avg: string; growth: string; trend: 'up' | 'down' }[]> = {};
+
+    for (const [qk, mList] of Object.entries(store)) {
+      result[qk] = mList.map((item, idx) => {
+        const prevRev = idx > 0 ? mList[idx - 1].revenue : 0;
+        let growth = '0%';
+        let trend: 'up' | 'down' = 'up';
+        if (prevRev > 0) {
+          const diff = Math.round(((item.revenue - prevRev) / prevRev) * 100);
+          growth = `${diff >= 0 ? '+' : ''}${diff}%`;
+          trend = diff >= 0 ? 'up' : 'down';
+        } else if (item.revenue > 0) {
+          growth = '+100%';
+          trend = 'up';
+        }
+
+        const avg = item.orders > 0 ? Math.round(item.revenue / item.orders) : 0;
+        return {
+          month: item.month,
+          orders: item.orders,
+          revenue: `₦${item.revenue.toLocaleString()}`,
+          rawRevenue: item.revenue,
+          avg: `₦${avg.toLocaleString()}`,
+          growth,
+          trend,
+        };
+      });
+    }
+
+    return { availableQuarters: Object.keys(result), liveRevenueData: result };
+  }, [orders]);
+
+  const currentQuarterKey = `Q${Math.floor(new Date().getMonth() / 3) + 1} ${new Date().getFullYear()}`;
+  const [selectedQuarter, setSelectedQuarter] = useState(currentQuarterKey);
+
+  const activeQuarterRows = liveRevenueData[selectedQuarter] || liveRevenueData[currentQuarterKey] || [];
+
+  // ── Compute Best-Selling Products from live orders ──
+  const topProducts = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; image: string; unitsSold: number; revenue: number; price: number; inStock: boolean }>();
+
+    for (const p of products) {
+      map.set(p.id, {
+        id: p.id,
+        name: p.name,
+        image: p.image,
+        unitsSold: 0,
+        revenue: 0,
+        price: p.price,
+        inStock: p.inStock,
+      });
+    }
+
+    for (const o of orders) {
+      if (o.status === 'cancelled' || o.status === 'pending-payment') continue;
+      if (Array.isArray(o.items)) {
+        for (const item of o.items) {
+          const pid = item.product?.id;
+          if (!pid) continue;
+          const existing = map.get(pid) || {
+            id: pid,
+            name: item.product?.name || 'Product',
+            image: item.product?.image || '',
+            unitsSold: 0,
+            revenue: 0,
+            price: item.product?.price || 0,
+            inStock: true,
+          };
+          const qty = Number(item.quantity) || 1;
+          existing.unitsSold += qty;
+          existing.revenue += qty * (Number(item.product?.price) || existing.price || 0);
+          map.set(pid, existing);
+        }
+      }
+    }
+
+    return Array.from(map.values()).sort((a, b) => b.unitsSold - a.unitsSold).slice(0, 4);
+  }, [orders, products]);
+
+  // ── Compute Marketer ROI & Conversion from live orders ──
+  const liveMarketers = useMemo(() => {
+    return marketers.map(m => {
+      const code = (m.code || '').trim().toUpperCase();
+      const mOrders = orders.filter(o =>
+        (o.couponCode || '').trim().toUpperCase() === code &&
+        o.status !== 'cancelled' &&
+        o.status !== 'pending-payment'
+      );
+      const grossSales = mOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      const commRate = parseFloat(m.commission) || 10;
+      const earned = Math.round(grossSales * (commRate / 100));
+
+      return {
+        ...m,
+        sales: mOrders.length || m.sales,
+        grossSales,
+        earned: earned || m.earned,
+      };
+    }).sort((a, b) => b.sales - a.sales).slice(0, 4);
+  }, [marketers, orders]);
 
   const mappedStoreOrders = orders.map(o => ({
     id: o.id,
@@ -1811,20 +1953,21 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
           <h2 className="text-xl font-bold text-slate-800">Performance Overview</h2>
           <p className="text-xs text-slate-400 mt-0.5">Real-time metrics from the Haifly Trap ecosystem</p>
         </div>
-        <button className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0f5238] text-white rounded-xl text-xs font-semibold hover:opacity-90 self-start sm:self-auto">
+        <button onClick={() => downloadTableAsPDF(selectedQuarter, activeQuarterRows)} className="flex items-center gap-1.5 px-4 py-2.5 bg-[#0f5238] text-white rounded-xl text-xs font-semibold hover:opacity-90 self-start sm:self-auto">
           <FileDown className="w-3.5 h-3.5" /> Export Report
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {[
-          { label: 'Total Revenue', value: formatCompactCurrency(orders.reduce((acc, o) => acc + (o.status !== 'pending-payment' ? o.total : 0), 0)), change: 'live', trend: 'up' as const, sub: 'all time', icon: TrendingUp, color: 'bg-blue-50 text-blue-600' },
-          { label: 'Total Orders', value: orders.length.toString(), change: 'live', trend: 'up' as const, sub: 'all time', icon: ShoppingCart, color: 'bg-purple-50 text-purple-600' },
-          { label: 'Active Marketers', value: marketers.length.toString(), change: 'live', trend: 'up' as const, sub: 'total registered', icon: Users, color: 'bg-green-50 text-green-600' },
-          { label: 'Pending Deliveries', value: orders.filter(o => o.status === 'processing' || o.status === 'packed').length.toString(), change: 'live', trend: 'up' as const, sub: 'awaiting dispatch', icon: Package, color: 'bg-orange-50 text-orange-600' },
+          { label: 'Total Revenue', value: formatCompactCurrency(orders.reduce((acc, o) => acc + (o.status !== 'pending-payment' ? o.total : 0), 0)), change: 'live', trend: 'up' as const, sub: 'from live orders', icon: TrendingUp, color: 'bg-blue-50 text-blue-600' },
+          { label: 'Total Orders', value: orders.length.toString(), change: 'live', trend: 'up' as const, sub: 'in database', icon: ShoppingCart, color: 'bg-purple-50 text-purple-600' },
+          { label: 'Live Shoppers', value: activeVisitors.toString(), change: 'real-time', trend: 'up' as const, sub: 'active in Redis', icon: Users, color: 'bg-emerald-50 text-emerald-600' },
+          { label: 'Pending Dispatch', value: orders.filter(o => o.status === 'processing' || o.status === 'packed').length.toString(), change: 'live', trend: 'up' as const, sub: 'awaiting transit', icon: Package, color: 'bg-orange-50 text-orange-600' },
+          { label: 'Active Marketers', value: marketers.length.toString(), change: 'live', trend: 'up' as const, sub: 'registered affiliates', icon: Users, color: 'bg-indigo-50 text-indigo-600' },
         ].map(stat => (
-          <div key={stat.label} className="bg-white rounded-2xl p-5 border border-slate-100 hover:shadow-sm transition-shadow">
+          <div key={stat.label} className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 hover:shadow-sm transition-shadow">
             <div className="flex items-center justify-between mb-3">
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${stat.color}`}>
                 <stat.icon style={{ width: '18px', height: '18px' }} />
@@ -1848,18 +1991,18 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-slate-50">
             <div>
               <h3 className="text-sm font-bold text-slate-800">Monthly Revenue</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Haifly Trap sales breakdown</p>
+              <p className="text-xs text-slate-400 mt-0.5">Live sales breakdown from PostgreSQL</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex gap-1 bg-slate-50 rounded-xl p-1">
-                {quarters.map(q => (
+                {availableQuarters.map(q => (
                   <button key={q} onClick={() => setSelectedQuarter(q)}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedQuarter === q ? 'bg-white text-slate-800 shadow-sm font-semibold' : 'text-slate-400 hover:text-slate-600'}`}>
                     {q}
                   </button>
                 ))}
               </div>
-              <button onClick={() => downloadTableAsPDF(selectedQuarter)}
+              <button onClick={() => downloadTableAsPDF(selectedQuarter, activeQuarterRows)}
                 className="flex items-center gap-1.5 px-3 py-2 bg-[#0f5238] text-white rounded-xl text-xs font-semibold hover:opacity-90">
                 <FileDown className="w-3.5 h-3.5" /> PDF
               </button>
@@ -1875,7 +2018,7 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {revenueData[selectedQuarter].map(row => (
+                {activeQuarterRows.map(row => (
                   <tr key={row.month} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-5 py-3.5 text-sm font-medium text-slate-700">{row.month}</td>
                     <td className="px-5 py-3.5 text-sm text-slate-600">{row.orders}</td>
@@ -1892,7 +2035,7 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
               <tfoot>
                 <tr className="bg-slate-50/60 border-t border-slate-100">
                   <td className="px-5 py-3 text-xs font-bold text-slate-600 uppercase tracking-wide">Total</td>
-                  <td className="px-5 py-3 text-sm font-bold text-slate-800">{revenueData[selectedQuarter].reduce((s, r) => s + r.orders, 0).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-sm font-bold text-slate-800">{activeQuarterRows.reduce((s, r) => s + r.orders, 0).toLocaleString()}</td>
                   <td colSpan={3} className="px-5 py-3 text-xs text-slate-400">{selectedQuarter}</td>
                 </tr>
               </tfoot>
@@ -2087,46 +2230,84 @@ function DashboardView({ setActiveSidebarItem }: { setActiveSidebarItem: (id: st
         </div>
       </div>
 
-      {/* Top Marketers */}
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-        <div className="flex items-center justify-between p-5 border-b border-slate-50">
-          <div>
-            <h3 className="text-sm font-bold text-slate-800">Top Performing Marketers</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Ranked by total conversions</p>
+      {/* Best-Selling Products & Top Marketers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Best-Selling Products */}
+        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+          <div className="flex items-center justify-between p-5 border-b border-slate-50">
+            <div>
+              <h3 className="text-sm font-bold text-slate-800">Best-Selling Products</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Ranked by units sold from live orders</p>
+            </div>
+            <button onClick={() => setActiveSidebarItem('products')} className="flex items-center gap-1.5 text-xs font-semibold text-[#0f5238] hover:underline">
+              Inventory <ExternalLink className="w-3 h-3" />
+            </button>
           </div>
-          <button onClick={() => setActiveSidebarItem('marketers')} className="flex items-center gap-1.5 text-xs font-semibold text-[#0f5238] hover:underline">
-            Manage All <ExternalLink className="w-3 h-3" />
-          </button>
+          <div className="divide-y divide-slate-50">
+            {topProducts.length === 0 ? (
+              <div className="p-8 text-center text-sm text-slate-400">No products sold yet.</div>
+            ) : topProducts.map((p, i) => (
+              <div key={p.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-xs font-bold text-slate-300 w-4">#{i + 1}</span>
+                  <img src={p.image || '/images/Broadkillersurefacespray.png'} alt={p.name} className="w-10 h-10 rounded-xl object-contain bg-slate-50 border border-slate-100 p-1 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-800 truncate">{p.name}</p>
+                    <p className="text-xs text-slate-400">₦{p.price.toLocaleString()} · <span className="font-semibold text-slate-600">{p.unitsSold} sold</span></p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0 ml-3">
+                  <p className="text-sm font-black text-[#0f5238]">₦{p.revenue.toLocaleString()}</p>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-0.5 ${p.inStock ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                    {p.inStock ? 'In Stock' : 'Out of Stock'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-50">
-                {['#', 'Marketer', 'Coupon Code', 'Sales', 'Total Earned', 'Status'].map(h => (
-                  <th key={h} className="text-left px-5 py-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {marketers.length === 0 ? (
-                <tr><td colSpan={6} className="px-5 py-10 text-center text-sm text-slate-400">No marketers found.</td></tr>
-              ) : [...marketers].sort((a, b) => b.sales - a.sales).slice(0, 4).map((m, i) => (
-                <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-4"><span className="text-xs font-bold text-slate-300">#{i + 1}</span></td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[#0f5238]/10 flex items-center justify-center text-xs font-bold text-[#0f5238] flex-shrink-0">{m.initials}</div>
-                      <span className="text-sm font-semibold text-slate-700">{m.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4"><span className="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">{m.code}</span></td>
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-700">{m.sales}</td>
-                  <td className="px-5 py-4 text-sm font-bold text-[#0f5238]">{formatCurrency(m.earned)}</td>
-                  <td className="px-5 py-4"><span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${statusStyle(m.status)}`}>{m.status}</span></td>
+
+        {/* Top Marketers */}
+        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+          <div className="flex items-center justify-between p-5 border-b border-slate-50">
+            <div>
+              <h3 className="text-sm font-bold text-slate-800">Top Performing Marketers</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Calculated commissions from live referral orders</p>
+            </div>
+            <button onClick={() => setActiveSidebarItem('marketers')} className="flex items-center gap-1.5 text-xs font-semibold text-[#0f5238] hover:underline">
+              Manage All <ExternalLink className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-50">
+                  {['#', 'Marketer', 'Code', 'Sales', 'Earned', 'Status'].map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {liveMarketers.length === 0 ? (
+                  <tr><td colSpan={6} className="px-5 py-10 text-center text-sm text-slate-400">No marketers found.</td></tr>
+                ) : liveMarketers.map((m, i) => (
+                  <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 py-3.5"><span className="text-xs font-bold text-slate-300">#{i + 1}</span></td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-[#0f5238]/10 flex items-center justify-center text-xs font-bold text-[#0f5238] flex-shrink-0">{m.initials}</div>
+                        <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">{m.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5"><span className="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{m.code}</span></td>
+                    <td className="px-4 py-3.5 text-xs font-semibold text-slate-700">{m.sales}</td>
+                    <td className="px-4 py-3.5 text-xs font-bold text-[#0f5238] whitespace-nowrap">{formatCurrency(m.earned)}</td>
+                    <td className="px-4 py-3.5"><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusStyle(m.status)}`}>{m.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -2202,7 +2383,7 @@ function SidebarContent({ activeSidebarItem, setActiveSidebarItem, setCurrentVie
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 export function AdminDashboard() {
-  const { setCurrentView, logout } = useStore();
+  const { setCurrentView, logout, activeVisitors } = useStore();
   const [activeSidebarItem, setActiveSidebarItem] = useState('dashboard');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -2282,6 +2463,16 @@ export function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* Real-time Redis Visitor Pill */}
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200/80 rounded-xl shadow-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-semibold text-emerald-800 whitespace-nowrap">
+                  {activeVisitors} online
+                </span>
+              </div>
               <div className="relative hidden md:flex items-center">
                 <Search className="absolute left-3 w-3.5 h-3.5 text-slate-400" />
                 <input type="text" placeholder="Search..." className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 w-48 focus:outline-none focus:ring-2 focus:ring-[#0f5238]/20" />
