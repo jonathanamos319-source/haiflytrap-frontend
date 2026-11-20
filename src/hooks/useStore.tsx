@@ -521,32 +521,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     const fetchOrders = async () => {
       const path = window.location.pathname;
-      const isAdminRoute = path.startsWith('/admin') || path.startsWith('/marketers');
-      const isHandlerRoute = path.startsWith('/handler');
+      const isStaffOrAdmin =
+        user?.role === 'admin' ||
+        user?.role === 'handler' ||
+        path.startsWith('/admin') ||
+        path.startsWith('/marketers') ||
+        path.startsWith('/handler') ||
+        path.includes('hft-secure-portal') ||
+        currentView === 'admin-dashboard' ||
+        currentView === 'handler-portal';
+
       const storedOrders = localStorage.getItem('haifly_orders');
 
-      if (!user && !isAdminRoute && !isHandlerRoute) {
+      if (!user && !isStaffOrAdmin) {
         return;
       }
 
       setIsLoadingOrders(true);
       try {
-        const endpoint = (!isAdminRoute && !isHandlerRoute) ? '/orders/my-orders' : '/orders';
+        const endpoint = isStaffOrAdmin ? '/orders' : '/orders/my-orders';
         const res = await api.get(endpoint);
 
         if (res.data?.success && Array.isArray(res.data.data)) {
           const serverOrders = res.data.data.map(normalizeServerOrder);
 
-          setOrders(prev => {
-            const merged = [...serverOrders];
-            prev.forEach(localOrder => {
-              if (!merged.some(so => so.id === localOrder.id)) {
-                merged.push(localOrder);
-              }
-            });
-
-            return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          });
+          // PostgreSQL is the single source of truth for live orders
+          setOrders(serverOrders);
+          try {
+            localStorage.setItem('haifly_orders', JSON.stringify(serverOrders));
+          } catch {
+            // ignore storage quota errors
+          }
         }
       } catch (err) {
         if (storedOrders) {
@@ -570,7 +575,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (intervalId) window.clearInterval(intervalId);
     };
-  }, [user]);
+  }, [user, currentView]);
 
   // ── Fetch marketers & handlers on mount (admin/handler data only) ──
   useEffect(() => {
