@@ -33,6 +33,7 @@ export function HandlerPortal() {
     .map(o => ({
       id: o.id,
       customerName: o.customerName,
+      customerPhone: o.customerPhone,
       location: o.city || 'Unknown',
       items: o.items.reduce((acc, item) => acc + item.quantity, 0),
       total: `₦${o.total.toLocaleString()}`,
@@ -396,13 +397,27 @@ function OrderCard({ order, isExpanded, onToggle, onUpdateStatus }: any) {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => onUpdateStatus(order.id, order.status, { riderName, riderPhone })} 
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-forest text-white font-semibold rounded-full hover:bg-forest-light transition-colors btn-anim"
-                >
-                  <Check className="w-5 h-5 relative z-10" />
-                  <span>Update Status & Notify Customer</span>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <button 
+                    onClick={() => onUpdateStatus(order.id, order.status, { riderName, riderPhone })} 
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-forest text-white font-semibold rounded-full hover:bg-forest-light transition-colors btn-anim text-sm"
+                  >
+                    <Check className="w-4 h-4 relative z-10" />
+                    <span>Update Status & Notify</span>
+                  </button>
+                  <a
+                    href={`https://wa.me/${(order.customerPhone || '2348031301311').replace(/\D/g, '').replace(/^0/, '234')}?text=${encodeURIComponent(
+                      `Hello ${order.customerName}! 🚚\n\nYour Haifly Trap order (#${order.id}) has been updated!\n${riderName ? `Rider: ${riderName} (${riderPhone || 'Assigned'})\n` : ''}\nTrack your delivery in real-time here:\nhttps://www.haiflytrap.com/track-order?id=${order.id}\n\nThank you for choosing Haifly Trap!`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 text-white font-semibold rounded-full hover:bg-emerald-700 transition-colors btn-anim text-sm"
+                    title="Send WhatsApp Delivery Update"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
