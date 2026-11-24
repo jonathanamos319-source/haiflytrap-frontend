@@ -1,14 +1,34 @@
 import { useStore } from '@/hooks/useStore';
-import { User, Search, Menu, X, ArrowLeft, ChevronDown } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { User, Search, Menu, X, ArrowLeft, ChevronDown, ShoppingBag, Settings, LogOut, LogIn, Shield, Truck } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
 import cartAnimation from '../lotties/system-solid-6-shopping-hover-pinch.json';
 
 export function Navbar() {
-  const { cartCount, setCurrentView, currentView, searchQuery, setSearchQuery, isBackendDown, isCheckingBackend, user } = useStore();
+  const { cartCount, setCurrentView, currentView, searchQuery, setSearchQuery, isBackendDown, isCheckingBackend, user, logout } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+  }, [currentView]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -188,10 +208,143 @@ export function Navbar() {
              )}
            </button>
 
-           {/* User */}
-           <button className="hidden sm:flex p-2 hover:bg-surface-high rounded-full transition-colors no-anim">
-             <User className="w-5 h-5 text-forest" />
-           </button>
+           {/* User Account Menu */}
+           <div className="relative hidden sm:block" ref={userMenuRef}>
+             <button
+               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+               className={`p-2 hover:bg-surface-high rounded-full transition-colors no-anim flex items-center justify-center relative ${
+                 isUserMenuOpen || isActive('settings') || isActive('customer-login') || isActive('recent-orders')
+                   ? 'bg-surface-high text-forest ring-2 ring-forest/20'
+                   : 'text-forest'
+               }`}
+               title={user ? (user.name || user.email) : 'Account'}
+             >
+               {user ? (
+                 <div className="w-6 h-6 rounded-full bg-forest text-white text-xs font-bold flex items-center justify-center">
+                   {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+                 </div>
+               ) : (
+                 <User className="w-5 h-5 text-forest" />
+               )}
+               {user && (
+                 <span className="absolute bottom-0 right-0 w-2 h-2 bg-fresh rounded-full ring-2 ring-white" />
+               )}
+             </button>
+
+             {/* Account Dropdown */}
+             {isUserMenuOpen && (
+               <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-outline-variant py-2 flex flex-col overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                 {user ? (
+                   <>
+                     {/* User Info Header */}
+                     <div className="px-4 py-3 border-b border-outline-variant/60 bg-surface/50">
+                       <p className="text-sm font-bold text-forest truncate">
+                         {user.name || 'Valued Customer'}
+                       </p>
+                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                       {user.role && user.role !== 'customer' && (
+                         <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gold/20 text-forest">
+                           {user.role}
+                         </span>
+                       )}
+                     </div>
+
+                     {/* Admin Portal link if admin */}
+                     {user.role === 'admin' && (
+                       <button
+                         onClick={() => {
+                           setCurrentView('admin-dashboard');
+                           setIsUserMenuOpen(false);
+                         }}
+                         className="px-4 py-2.5 text-sm text-left hover:bg-surface-high transition-colors text-forest font-semibold flex items-center gap-2.5 border-b border-outline-variant/40"
+                       >
+                         <Shield className="w-4 h-4 text-gold" />
+                         <span>Admin Portal</span>
+                       </button>
+                     )}
+
+                     {/* Handler Portal link if handler or admin */}
+                     {(user.role === 'handler' || user.role === 'admin') && (
+                       <button
+                         onClick={() => {
+                           setCurrentView('handler-portal');
+                           setIsUserMenuOpen(false);
+                         }}
+                         className="px-4 py-2.5 text-sm text-left hover:bg-surface-high transition-colors text-forest font-semibold flex items-center gap-2.5 border-b border-outline-variant/40"
+                       >
+                         <Truck className="w-4 h-4 text-forest" />
+                         <span>Handler Portal</span>
+                       </button>
+                     )}
+
+                     {/* Customer Links */}
+                     <button
+                       onClick={() => {
+                         setCurrentView('recent-orders');
+                         setIsUserMenuOpen(false);
+                       }}
+                       className="px-4 py-2.5 text-sm text-left hover:bg-surface-high transition-colors text-forest font-medium flex items-center gap-2.5"
+                     >
+                       <ShoppingBag className="w-4 h-4 text-muted-foreground" />
+                       <span>My Orders</span>
+                     </button>
+
+                     <button
+                       onClick={() => {
+                         setCurrentView('settings');
+                         setIsUserMenuOpen(false);
+                       }}
+                       className="px-4 py-2.5 text-sm text-left hover:bg-surface-high transition-colors text-forest font-medium flex items-center gap-2.5"
+                     >
+                       <Settings className="w-4 h-4 text-muted-foreground" />
+                       <span>Account Settings</span>
+                     </button>
+
+                     <div className="border-t border-outline-variant/60 my-1" />
+
+                     <button
+                       onClick={() => {
+                         logout();
+                         setIsUserMenuOpen(false);
+                       }}
+                       className="px-4 py-2.5 text-sm text-left hover:bg-red-50 transition-colors text-red-600 font-medium flex items-center gap-2.5"
+                     >
+                       <LogOut className="w-4 h-4 text-red-500" />
+                       <span>Sign Out</span>
+                     </button>
+                   </>
+                 ) : (
+                   <>
+                     <div className="px-4 py-2.5 border-b border-outline-variant/60 bg-surface/50">
+                       <p className="text-xs font-semibold text-muted-foreground">Welcome to Haifly Trap</p>
+                     </div>
+
+                     <button
+                       onClick={() => {
+                         setCurrentView('customer-login');
+                         setIsUserMenuOpen(false);
+                       }}
+                       className="px-4 py-2.5 text-sm text-left hover:bg-surface-high transition-colors text-forest font-semibold flex items-center gap-2.5"
+                     >
+                       <LogIn className="w-4 h-4 text-forest" />
+                       <span>Login / Sign Up</span>
+                     </button>
+
+                     <button
+                       onClick={() => {
+                         setCurrentView('track-order');
+                         setIsUserMenuOpen(false);
+                       }}
+                       className="px-4 py-2.5 text-sm text-left hover:bg-surface-high transition-colors text-forest font-medium flex items-center gap-2.5"
+                     >
+                       <Truck className="w-4 h-4 text-muted-foreground" />
+                       <span>Track an Order</span>
+                     </button>
+                   </>
+                 )}
+               </div>
+             )}
+           </div>
 
            {/* Mobile Menu Toggle */}
            <button
@@ -291,6 +444,28 @@ export function Navbar() {
                     }`}
                   >
                     <span>Account Settings</span>
+                  </button>
+                  {user.role === 'admin' && (
+                    <button
+                      onClick={() => {
+                        setCurrentView('admin-dashboard');
+                        setIsMenuOpen(false);
+                      }}
+                      className="px-4 py-3 text-left font-semibold rounded-xl transition-colors btn-anim text-gold bg-forest/5 flex items-center gap-2"
+                    >
+                      <Shield className="w-4 h-4" />
+                      <span>Admin Portal</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="px-4 py-3 text-left font-medium rounded-xl transition-colors btn-anim text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
                   </button>
                 </>
               ) : (
