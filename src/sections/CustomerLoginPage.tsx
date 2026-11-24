@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
 import { api } from '@/lib/api';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
-import { Loader2, Mail, ArrowLeft, CheckCircle, RotateCw } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft, CheckCircle, RotateCw, UserCheck, LogOut, ShoppingBag, Shield } from 'lucide-react';
 
 type LoginStep = 'form' | 'verify' | 'success';
 
 export function CustomerLoginPage() {
-  const { setCurrentView } = useStore();
+  const { setCurrentView, logout } = useStore();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,22 +16,22 @@ export function CustomerLoginPage() {
   const [error, setError] = useState('');
   const [step, setStep] = useState<LoginStep>('form');
   const [cooldown, setCooldown] = useState(0);
+  const [existingUser, setExistingUser] = useState<any>(null);
 
-  // ── Redirect if already logged in ──
+  // ── Check if already logged in ──
   useEffect(() => {
     let cancelled = false;
     const checkSession = async () => {
       try {
         const res = await api.get('/auth/me?role=customer');
         if (cancelled) return;
-        if (res.data?.success && res.data.data && res.data.data.role === 'customer' && step !== 'success') {
+        if (res.data?.success && res.data.data && step !== 'success') {
           const params = new URLSearchParams(window.location.search);
           const from = params.get('from');
           if (from) {
             window.location.href = from;
           } else {
-            setCurrentView('home');
-            window.history.pushState({}, '', '/');
+            setExistingUser(res.data.data);
           }
         }
       } catch {
@@ -40,7 +40,7 @@ export function CustomerLoginPage() {
     };
     checkSession();
     return () => { cancelled = true; };
-  }, [setCurrentView, step]);
+  }, [step]);
 
   // ── Cooldown Timer ──
   useEffect(() => {
@@ -172,8 +172,71 @@ export function CustomerLoginPage() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
 
+          {/* Already logged in state */}
+          {existingUser && (
+            <div className="bg-white border border-slate-200/80 shadow-2xl rounded-3xl p-6 text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-full bg-forest text-white text-2xl font-bold flex items-center justify-center mx-auto shadow-md">
+                {existingUser.name ? existingUser.name[0].toUpperCase() : (existingUser.email ? existingUser.email[0].toUpperCase() : 'U')}
+              </div>
+              <div className="space-y-1">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  Currently Signed In
+                </span>
+                <h2 className="text-xl font-bold text-forest mt-2">
+                  {existingUser.name || 'Valued Customer'}
+                </h2>
+                <p className="text-xs text-muted-foreground font-mono truncate px-2">
+                  {existingUser.email}
+                </p>
+                {existingUser.role && existingUser.role !== 'customer' && (
+                  <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gold/20 text-forest">
+                    Role: {existingUser.role}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-2.5 pt-2">
+                <button
+                  onClick={() => {
+                    setCurrentView('shop');
+                    window.history.pushState({}, '', '/shop');
+                  }}
+                  className="w-full py-3 px-4 bg-forest hover:bg-forest/90 text-white font-bold text-sm rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 btn-anim"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Continue Shopping</span>
+                </button>
+
+                {existingUser.role === 'admin' && (
+                  <button
+                    onClick={() => {
+                      setCurrentView('admin-dashboard');
+                      window.history.pushState({}, '', '/admin');
+                    }}
+                    className="w-full py-2.5 px-4 bg-gold/15 hover:bg-gold/25 text-forest font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2 btn-anim"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    <span>Go to Admin Portal</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={async () => {
+                    await logout();
+                    setExistingUser(null);
+                  }}
+                  className="w-full py-2.5 px-4 text-xs font-medium text-red-600 hover:bg-red-50 rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-red-500" />
+                  <span>Sign In With a Different Account</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Success state */}
-          {step === 'success' && (
+          {!existingUser && step === 'success' && (
             <div className="text-center space-y-6 animate-in fade-in zoom-in duration-700">
               <div className="w-24 h-24 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center mx-auto mb-6 relative">
                 <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-white animate-[bounce_1.5s_infinite] shadow-lg shadow-emerald-200">
@@ -190,7 +253,7 @@ export function CustomerLoginPage() {
           )}
 
           {/* Verify state */}
-          {step === 'verify' && (
+          {!existingUser && step === 'verify' && (
             <div className="space-y-6">
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4">
@@ -270,7 +333,7 @@ export function CustomerLoginPage() {
           )}
 
           {/* Form state */}
-          {step === 'form' && (
+          {!existingUser && step === 'form' && (
             <div className="space-y-6">
               <div className="text-center">
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">
