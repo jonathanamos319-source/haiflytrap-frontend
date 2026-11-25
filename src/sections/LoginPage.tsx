@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
 import { Lock, Loader2, KeyRound } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api, getFriendlyApiError } from '@/lib/api';
 
 export function LoginPage() {
   const { setCurrentView } = useStore();
@@ -64,7 +64,7 @@ export function LoginPage() {
         setError(res.data?.error || 'Invalid credentials');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Login failed. Please check your credentials.');
+      setError(getFriendlyApiError(err, 'Login failed. Please check your credentials.'));
     } finally {
       setLoading(false);
     }

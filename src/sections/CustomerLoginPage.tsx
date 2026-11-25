@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
-import { api } from '@/lib/api';
+import { api, getFriendlyApiError } from '@/lib/api';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import { Loader2, Mail, ArrowLeft, CheckCircle, RotateCw, UserCheck, LogOut, ShoppingBag, Shield } from 'lucide-react';
 
@@ -17,6 +17,17 @@ export function CustomerLoginPage() {
   const [step, setStep] = useState<LoginStep>('form');
   const [cooldown, setCooldown] = useState(0);
   const [existingUser, setExistingUser] = useState<any>(null);
+  const [googleBtnWidth, setGoogleBtnWidth] = useState(() =>
+    typeof window !== 'undefined' ? String(Math.min(350, Math.max(240, window.innerWidth - 48))) : '320'
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setGoogleBtnWidth(String(Math.min(350, Math.max(240, window.innerWidth - 48))));
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ── Check if already logged in ──
   useEffect(() => {
@@ -51,8 +62,8 @@ export function CustomerLoginPage() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const handleSuccessfulAuth = () => {
-    window.dispatchEvent(new Event('haifly_auth_changed'));
+  const handleSuccessfulAuth = (authUser?: any) => {
+    window.dispatchEvent(new CustomEvent('haifly_auth_changed', { detail: { user: authUser } }));
     setStep('success');
     setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
@@ -82,12 +93,12 @@ export function CustomerLoginPage() {
       });
 
       if (res.data?.success) {
-        handleSuccessfulAuth();
+        handleSuccessfulAuth(res.data.data);
       } else {
         setError(res.data?.error || 'Google sign-in failed.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Google sign-in failed. Please try again.');
+      setError(getFriendlyApiError(err, 'Google sign-in failed. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -115,7 +126,7 @@ export function CustomerLoginPage() {
         setError(res.data?.error || 'Failed to send verification code.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to send verification code.');
+      setError(getFriendlyApiError(err, 'Failed to send verification code.'));
     } finally {
       setLoading(false);
     }
@@ -138,12 +149,12 @@ export function CustomerLoginPage() {
       });
 
       if (res.data?.success) {
-        handleSuccessfulAuth();
+        handleSuccessfulAuth(res.data.data);
       } else {
         setError(res.data?.error || 'Invalid verification code.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Invalid verification code. Please try again.');
+      setError(getFriendlyApiError(err, 'Invalid verification code. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -349,15 +360,15 @@ export function CustomerLoginPage() {
               )}
 
               {/* 1. Google Button First */}
-              <div className="flex justify-center w-full">
+              <div className="flex justify-center w-full overflow-hidden">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google sign-in was unsuccessful.')}
+                  onError={() => setError('Google sign-in popup could not complete on this browser. Please use the 6-digit email code below.')}
                   shape="circle"
                   theme="outline"
                   size="large"
                   text="continue_with"
-                  width="350"
+                  width={googleBtnWidth}
                 />
               </div>
 

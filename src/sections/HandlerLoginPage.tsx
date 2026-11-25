@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/hooks/useStore';
-import api from '@/lib/api';
+import api, { getFriendlyApiError } from '@/lib/api';
 import { Package, Loader2, ArrowLeft } from 'lucide-react';
 
 export function HandlerLoginPage() {
@@ -63,7 +63,7 @@ export function HandlerLoginPage() {
         setError(res.data?.error || 'Invalid phone number or not registered as handler');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Authentication failed. Make sure your phone number is registered.');
+      setError(getFriendlyApiError(err, 'Authentication failed. Make sure your phone number is registered.'));
     } finally {
       setLoading(false);
     }

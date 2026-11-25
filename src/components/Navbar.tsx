@@ -163,7 +163,7 @@ export function Navbar() {
         </div>
 
          {/* Right Actions */}
-         <div className="flex items-center gap-2 md:gap-4">
+         <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
            {/* Search - Desktop */}
            <div className="hidden lg:flex items-center relative">
              <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
@@ -208,8 +208,8 @@ export function Navbar() {
              )}
            </button>
 
-           {/* User Account Menu */}
-           <div className="relative hidden sm:block" ref={userMenuRef}>
+           {/* User Account Menu (visible on both mobile & desktop) */}
+           <div className="relative block" ref={userMenuRef}>
              <button
                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                className={`p-2 hover:bg-surface-high rounded-full transition-colors no-anim flex items-center justify-center relative ${
@@ -419,6 +419,18 @@ export function Navbar() {
               </button>
               {user ? (
                 <>
+                  <div className="px-4 py-3 rounded-xl bg-surface/70 border border-outline-variant/60 flex items-center gap-3 mb-1">
+                    <div className="w-9 h-9 rounded-full bg-forest text-white text-sm font-bold flex items-center justify-center flex-shrink-0 relative">
+                      {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-fresh rounded-full ring-2 ring-white" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-forest truncate">
+                        {user.name || 'Valued Customer'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  </div>
                   <button
                     onClick={() => {
                       setCurrentView('recent-orders');
@@ -455,6 +467,18 @@ export function Navbar() {
                     >
                       <Shield className="w-4 h-4" />
                       <span>Admin Portal</span>
+                    </button>
+                  )}
+                  {(user.role === 'handler' || user.role === 'admin') && (
+                    <button
+                      onClick={() => {
+                        setCurrentView('handler-portal');
+                        setIsMenuOpen(false);
+                      }}
+                      className="px-4 py-3 text-left font-semibold rounded-xl transition-colors btn-anim text-forest bg-forest/5 flex items-center gap-2"
+                    >
+                      <Truck className="w-4 h-4" />
+                      <span>Handler Portal</span>
                     </button>
                   )}
                   <button

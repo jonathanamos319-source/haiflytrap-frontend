@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Product, CartItem, Order, View, AdminMarketer, HandlerProfile, BlogPost, User } from '@/types';
-import api, { API_BASE_URL } from '@/lib/api';
+import api, { API_BASE_URL, clearAuthToken } from '@/lib/api';
 
 
 // ─── CONTEXT TYPES ───────────────────────────────────────────────────────────
@@ -121,6 +121,9 @@ const getViewFromLocation = (): View => {
   if (path === '/cart') return 'cart';
   if (path === '/checkout') return 'checkout';
   if (path === '/orders') return 'recent-orders';
+  if (path === '/settings') return 'settings';
+  if (path === '/blog') return 'blog';
+  if (path === '/track-order') return 'track-order';
   return 'home';
 };
 
@@ -466,28 +469,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ── Rehydrate Sessions on mount & listen to auth changes (Customer Storefront Only) ──
-  const recheckUser = useCallback(async () => {
+  const normalizeUserState = (u: any): User => ({
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    role: u.role,
+    avatar_url: u.avatar_url,
+    created_at: u.created_at,
+    user_metadata: {
+      full_name: u.name,
+      name: u.name,
+    },
+  });
+
+  const recheckUser = useCallback(async (preserveOnNetworkError = false) => {
     try {
       const res = await api.get('/auth/me?role=customer');
       if (res.data?.success && res.data.data && res.data.data.role === 'customer') {
-        const u = res.data.data;
-        setUser({
-          id: u.id,
-          email: u.email,
-          name: u.name,
-          role: u.role,
-          avatar_url: u.avatar_url,
-          created_at: u.created_at,
-          user_metadata: {
-            full_name: u.name,
-            name: u.name,
-          },
-        });
+        setUser(normalizeUserState(res.data.data));
       } else {
         setUser(null);
       }
-    } catch {
-      setUser(null);
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (!preserveOnNetworkError || status === 401 || status === 403) {
+        setUser(null);
+      }
     } finally {
       setIsLoadingUser(false);
     }
@@ -497,8 +504,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     recheckUser();
 
     // Listen for custom login/logout notifications across tabs or components
-    const handleAuthChange = () => {
-      recheckUser();
+    const handleAuthChange = (event: Event) => {
+      const detailUser = (event as CustomEvent)?.detail?.user;
+      if (detailUser && detailUser.role === 'customer') {
+        setUser(normalizeUserState(detailUser));
+        setIsLoadingUser(false);
+        recheckUser(true);
+      } else {
+        recheckUser();
+      }
     };
 
     window.addEventListener('haifly_auth_changed', handleAuthChange);
@@ -589,6 +603,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     };
 
     const fetchActiveVisitors = async () => {
+      if (user?.role !== 'admin' && currentView !== 'admin-dashboard') return;
       try {
         const res = await api.get('/health/active-visitors');
         if (res.data?.success && typeof res.data.count === 'number') {
@@ -1053,6 +1068,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     } else if (path.startsWith('/handler')) {
       role = 'handler';
     }
+
+    clearAuthToken(role);
 
     try {
       await api.post(`/auth/logout?role=${role}`);

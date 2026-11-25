@@ -56,12 +56,14 @@ export function BottomNav() {
 
   useEffect(() => { setShowMoreMenu(false); }, [currentView]);
 
+  const accountLabel = user ? (user.name?.trim().split(' ')[0] || 'Account') : 'Login';
+
   const NAV_ITEMS = [
     { id: 'home', icon: Home, label: 'Home', view: 'home' },
     { id: 'shop', icon: ShoppingBag, label: 'Shop', view: 'shop' },
     { id: 'reviews', icon: Star, label: 'Reviews', view: 'reviews' },
     { id: 'more', icon: MoreHorizontal, label: 'More', view: '__more__' },
-    { id: 'account', icon: UserIcon, label: 'Account', view: user ? 'settings' : 'customer-login' },
+    { id: 'account', icon: UserIcon, label: accountLabel, view: user ? 'settings' : 'customer-login' },
   ];
 
   const getActiveIndex = () => {
@@ -239,6 +241,13 @@ export function BottomNav() {
             zIndex: 2,
           }}>
             {(() => { const Icon = NAV_ITEMS[activeIndex].icon; return <Icon size={20} strokeWidth={2.5} color="#0f5238" />; })()}
+            {NAV_ITEMS[activeIndex].id === 'account' && user && (
+              <span style={{
+                position: 'absolute', top: 6, right: 6,
+                width: 9, height: 9, borderRadius: '50%',
+                background: '#10b981', border: '1.5px solid #fff',
+              }} />
+            )}
           </div>
 
           {/* Nav tab divs — using div instead of button kills the yellow highlight */}
@@ -269,7 +278,18 @@ export function BottomNav() {
                 >
                   {active
                     ? <div style={{ height: 22, marginBottom: 2 }} />
-                    : <div style={{ marginBottom: 2 }}><Icon size={19} strokeWidth={1.8} color="#94a3b8" /></div>
+                    : (
+                      <div style={{ marginBottom: 2, position: 'relative' }}>
+                        <Icon size={19} strokeWidth={1.8} color="#94a3b8" />
+                        {item.id === 'account' && user && (
+                          <span style={{
+                            position: 'absolute', top: -1, right: -3,
+                            width: 7, height: 7, borderRadius: '50%',
+                            background: '#10b981', border: '1.5px solid #fff',
+                          }} />
+                        )}
+                      </div>
+                    )
                   }
                   <span style={{
                     fontSize: 9, lineHeight: 1,
