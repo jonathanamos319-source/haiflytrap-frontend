@@ -8,6 +8,8 @@ import Lottie from 'lottie-react';
 import beeAnimation from '../lotties/wired-outline-1148-bee-hover-pinch.json';
 import { loadGSAP } from '@/utils/gsap-loader';
 import { FAQSection } from '@/components/FAQSection';
+import { ScrollableInstagramPost } from '@/components/ScrollableInstagramPost';
+import { BroadKillerShowcaseSection } from '@/components/BroadKillerShowcaseSection';
 
 const MapIframe = lazy(() => import('@/components/MapIframe'));
 
@@ -308,6 +310,13 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Premium Website Product Showcase Section - Broad Killer 6X */}
+      <BroadKillerShowcaseSection
+        onShopClick={() => setCurrentView('shop')}
+        showWhatsAppFallback={isBackendDown && !isCheckingBackend && !isRetrying}
+        whatsappNumber={import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}
+      />
+
       {/* Promo Section */}
       <section className="py-6 md:py-10 bg-forest relative overflow-hidden promo-section">
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
@@ -534,9 +543,18 @@ export function HomePage() {
             style={{ clipPath: 'circle(36%)' }}
           />
 
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-forest mb-4">Join Our Community</h2>
-            <p className="text-muted-foreground text-base mb-6">Follow us on Instagram <a href="https://www.instagram.com/haiflytrap/" target="_blank" rel="noopener noreferrer" className="text-fresh font-bold hover:underline">@haiflytrap</a></p>
+            <p className="text-muted-foreground text-base mb-8">Follow us on Instagram <a href="https://www.instagram.com/haiflytrap/" target="_blank" rel="noopener noreferrer" className="text-fresh font-bold hover:underline">@haiflytrap</a></p>
+
+            {/* Interactive Scrollable Featured Post */}
+            <div className="mb-10">
+              <ScrollableInstagramPost
+                onShopClick={() => setCurrentView('shop')}
+                showWhatsAppFallback={isBackendDown && !isCheckingBackend && !isRetrying}
+                whatsappNumber={import.meta.env.VITE_WHATSAPP_NUMBER || '2348031301311'}
+              />
+            </div>
 
             {/* Instagram Profile Container - Balanced Crop with Green Fog */}
             <div className="relative max-w-2xl mx-auto overflow-hidden bg-transparent border-none group instagram-phone scroll-reveal reveal-up delay-200">
