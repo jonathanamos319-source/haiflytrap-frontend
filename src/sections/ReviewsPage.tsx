@@ -407,7 +407,7 @@ export function ReviewsPage() {
               <img
                 src="/images/Broadkillersurefacespray-removebg-preview.png"
                 alt="Broadkiller Surface Spray"
-                className="w-full h-auto max-h-[750px] object-contain transform -rotate-3 -translate-y-6 hover:rotate-0 hover:-translate-y-10 transition-all duration-700 drop-shadow-[0_35px_55px_rgba(0,0,0,0.2)] scale-90 sm:scale-110 relative z-10"
+                className="w-full h-auto max-h-[420px] sm:max-h-[520px] lg:max-h-[560px] object-contain transform -rotate-3 hover:rotate-0 hover:-translate-y-3 transition-all duration-700 drop-shadow-[0_35px_55px_rgba(0,0,0,0.2)] relative z-10"
               />
             </div>
 
