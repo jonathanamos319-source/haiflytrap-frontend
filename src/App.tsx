@@ -6,9 +6,9 @@ import { Footer } from '@/components/Footer';
 import { RoleGuard } from '@/components/RoleGuard';
 import { AdminGuard } from '@/components/AdminGuard';
 import { SEO } from '@/components/SEO';
+import { HomePage } from '@/sections/HomePage';
 
-// Sections (Lazy Loaded)
-const HomePage = lazy(() => import('@/sections/HomePage').then(m => ({ default: m.HomePage })));
+// Secondary Sections (Lazy Loaded)
 const ShopPage = lazy(() => import('@/sections/ShopPage').then(m => ({ default: m.ShopPage })));
 const ProductDetailPage = lazy(() => import('@/sections/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const CartPage = lazy(() => import('@/sections/CartPage').then(m => ({ default: m.CartPage })));
