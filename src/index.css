@@ -566,7 +566,7 @@
 
   @media (max-width: 768px) {
     .hero-background {
-      background-image: url('/mobile-responsive-bg.webp');
+      background-image: url('/mobile%20responsive.png');
       background-position: 85% center;
       background-size: 110% auto;
     }
