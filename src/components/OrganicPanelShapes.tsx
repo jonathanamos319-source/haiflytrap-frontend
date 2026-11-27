@@ -7,18 +7,18 @@ interface OrganicPanelBackdropProps {
 }
 
 /**
- * Renders responsive desktop and mobile SVG organic panel backdrops with smooth
- * Bezier rounded vertices and interlocking diagonal seams inspired by stacked showcase bands,
- * colored exclusively with HAI FLY TRAP brand/packaging tones.
+ * Renders responsive desktop/tablet and mobile SVG organic panel backdrops with smooth
+ * Bezier rounded vertices and parallel interlocking diagonal seams colored strictly
+ * with HAI FLY TRAP brand/packaging tones.
  */
 export function OrganicPanelBackdrop({ variant }: OrganicPanelBackdropProps) {
   const uid = useId().replace(/:/g, '');
   const desktopGradId = `panel-grad-${variant}-d-${uid}`;
   const mobileGradId = `panel-grad-${variant}-m-${uid}`;
 
-  // Desktop SVG paths on a 1000x320 coordinate space with parallel interlocking slopes
+  // Desktop & tablet (md+) SVG paths on a 1000x320 coordinate space with parallel interlocking slopes
   const desktopPaths: Record<PanelVariant, string> = {
-    // Top subtle arch-wave; bottom slopes gently UP from left (y=314) to right (y=268)
+    // Top subtle arch-wave; bottom slopes UP from left (y=314) to right (y=272)
     'crimson-top':
       'M 2,52 Q 2,16 38,14 C 320,2 680,26 962,10 Q 998,8 998,44 L 998,236 Q 998,268 962,272 C 660,292 340,298 38,314 Q 2,316 2,280 Z',
     // Top runs parallel to crimson-top bottom (/); bottom slopes DOWN left-to-right (\)
@@ -29,14 +29,14 @@ export function OrganicPanelBackdrop({ variant }: OrganicPanelBackdropProps) {
       'M 2,36 Q 2,4 38,8 C 340,24 660,32 962,48 Q 998,52 998,86 L 998,274 Q 998,308 962,310 C 680,318 320,296 38,312 Q 2,314 2,278 Z',
   };
 
-  // Mobile SVG paths on a 400x520 portrait coordinate space (shallow curve amplitude so tall stacks never clip text)
+  // Mobile (< md) SVG paths matching the exact same parallel diagonal (/) and (\) seams
   const mobilePaths: Record<PanelVariant, string> = {
     'crimson-top':
-      'M 2,34 Q 2,10 26,8 C 145,2 255,16 374,10 Q 398,8 398,34 L 398,476 Q 398,498 374,500 C 260,508 140,508 26,514 Q 2,516 2,492 Z',
+      'M 2,34 Q 2,10 28,8 C 145,2 255,14 372,8 Q 398,6 398,32 L 398,438 Q 398,464 372,468 C 255,482 145,488 28,500 Q 2,502 2,474 Z',
     'forest-middle':
-      'M 2,40 Q 2,18 26,16 C 140,10 260,10 374,4 Q 398,2 398,24 L 398,492 Q 398,514 374,512 C 260,504 140,498 26,492 Q 2,490 2,468 Z',
+      'M 2,60 Q 2,36 28,32 C 145,20 255,14 372,4 Q 398,2 398,28 L 398,472 Q 398,500 372,496 C 255,482 145,474 28,462 Q 2,458 2,432 Z',
     'white-bottom':
-      'M 2,24 Q 2,4 26,6 C 140,12 260,18 374,26 Q 398,28 398,50 L 398,484 Q 398,508 374,510 C 250,516 150,502 26,512 Q 2,514 2,488 Z',
+      'M 2,28 Q 2,4 28,8 C 145,20 255,28 372,40 Q 398,44 398,70 L 398,472 Q 398,496 372,498 C 250,504 150,490 28,500 Q 2,502 2,476 Z',
   };
 
   const renderFillDefs = (id: string) => {
@@ -80,11 +80,11 @@ export function OrganicPanelBackdrop({ variant }: OrganicPanelBackdropProps) {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 w-full h-full drop-shadow-[0_12px_24px_rgba(15,82,56,0.14)]"
     >
-      {/* Desktop / Wide Aspect Organic Silhouette */}
+      {/* Desktop & Tablet Organic Silhouette */}
       <svg
         viewBox="0 0 1000 320"
         preserveAspectRatio="none"
-        className="hidden lg:block w-full h-full overflow-visible"
+        className="hidden md:block w-full h-full overflow-visible"
       >
         <defs>{renderFillDefs(desktopGradId)}</defs>
         <path
@@ -96,11 +96,11 @@ export function OrganicPanelBackdrop({ variant }: OrganicPanelBackdropProps) {
         />
       </svg>
 
-      {/* Mobile / Stacked Organic Silhouette */}
+      {/* Mobile Interlocking Diagonal Silhouette */}
       <svg
-        viewBox="0 0 400 520"
+        viewBox="0 0 400 504"
         preserveAspectRatio="none"
-        className="block lg:hidden w-full h-full overflow-visible"
+        className="block md:hidden w-full h-full overflow-visible"
       >
         <defs>{renderFillDefs(mobileGradId)}</defs>
         <path

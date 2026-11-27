@@ -34,11 +34,11 @@ const TARGET_PESTS: readonly PestItem[] = [
   { name: 'Houseflies', image: '/images/dead_house_fly_final.png' },
   { name: 'Bedbugs', image: '/images/bedbug.png' },
   { name: 'Cockroaches', image: '/images/cockroach.png' },
-  { name: 'Sand flies', renderSvg: () => <SandFlySvg className="w-8 h-8" /> },
+  { name: 'Sand flies', renderSvg: () => <SandFlySvg className="w-6 h-6 sm:w-8 sm:h-8" /> },
   { name: 'Ticks', image: '/images/tick.png' },
-  { name: 'Fleas', renderSvg: () => <FleaSvg className="w-8 h-8" /> },
-  { name: 'Aphids', renderSvg: () => <AphidSvg className="w-8 h-8" /> },
-  { name: 'Black beetles', renderSvg: () => <BlackBeetleSvg className="w-8 h-8" /> },
+  { name: 'Fleas', renderSvg: () => <FleaSvg className="w-6 h-6 sm:w-8 sm:h-8" /> },
+  { name: 'Aphids', renderSvg: () => <AphidSvg className="w-6 h-6 sm:w-8 sm:h-8" /> },
+  { name: 'Black beetles', renderSvg: () => <BlackBeetleSvg className="w-6 h-6 sm:w-8 sm:h-8" /> },
 ];
 
 const PROTECTION_HIGHLIGHTS = [
@@ -65,11 +65,11 @@ const PROTECTION_HIGHLIGHTS = [
 ] as const;
 
 const SAFE_AROUND_SUBJECTS = [
-  { name: 'Humans', renderIcon: () => <HumansEmblemSvg className="w-6 h-6 sm:w-7 sm:h-7" /> },
-  { name: 'Dogs', renderIcon: () => <DogEmblemSvg className="w-6 h-6 sm:w-7 sm:h-7" /> },
-  { name: 'Horses', renderIcon: () => <HorseEmblemSvg className="w-6 h-6 sm:w-7 sm:h-7" /> },
-  { name: 'Pigs', renderIcon: () => <PigEmblemSvg className="w-6 h-6 sm:w-7 sm:h-7" /> },
-  { name: 'Plants', renderIcon: () => <PlantsEmblemSvg className="w-6 h-6 sm:w-7 sm:h-7" /> },
+  { name: 'Humans', renderIcon: () => <HumansEmblemSvg className="w-5 h-5 sm:w-7 sm:h-7" /> },
+  { name: 'Dogs', renderIcon: () => <DogEmblemSvg className="w-5 h-5 sm:w-7 sm:h-7" /> },
+  { name: 'Horses', renderIcon: () => <HorseEmblemSvg className="w-5 h-5 sm:w-7 sm:h-7" /> },
+  { name: 'Pigs', renderIcon: () => <PigEmblemSvg className="w-5 h-5 sm:w-7 sm:h-7" /> },
+  { name: 'Plants', renderIcon: () => <PlantsEmblemSvg className="w-5 h-5 sm:w-7 sm:h-7" /> },
 ] as const;
 
 function DualCircleBadges({
@@ -88,18 +88,22 @@ function DualCircleBadges({
   bottomClassName: string;
 }) {
   return (
-    <div className="flex flex-row lg:flex-col items-center justify-center gap-2.5 z-20 shrink-0">
+    <div className="flex flex-col items-center justify-center gap-2 z-20 shrink-0">
       <div
-        className={`w-[68px] h-[68px] rounded-full flex flex-col items-center justify-center text-center shadow-lg border-[3px] border-white leading-none transition-transform duration-300 hover:scale-105 ${topClassName}`}
+        className={`w-[58px] h-[58px] md:w-[68px] md:h-[68px] rounded-full flex flex-col items-center justify-center text-center shadow-lg border-[2.5px] md:border-[3px] border-white leading-none transition-transform duration-300 hover:scale-105 ${topClassName}`}
       >
-        <span className="text-[8px] font-bold uppercase tracking-wider opacity-85">{topLabel}</span>
-        <span className="text-xs font-extrabold mt-0.5">{topValue}</span>
+        <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-wider opacity-85">
+          {topLabel}
+        </span>
+        <span className="text-[11px] md:text-xs font-extrabold mt-0.5">{topValue}</span>
       </div>
       <div
-        className={`w-[68px] h-[68px] rounded-full flex flex-col items-center justify-center text-center shadow-lg border-[3px] border-white leading-none transition-transform duration-300 hover:scale-105 ${bottomClassName}`}
+        className={`w-[58px] h-[58px] md:w-[68px] md:h-[68px] rounded-full flex flex-col items-center justify-center text-center shadow-lg border-[2.5px] md:border-[3px] border-white leading-none transition-transform duration-300 hover:scale-105 ${bottomClassName}`}
       >
-        <span className="text-[8px] font-bold uppercase tracking-wider opacity-85">{bottomLabel}</span>
-        <span className="text-xs font-extrabold mt-0.5 px-1">{bottomValue}</span>
+        <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-wider opacity-85">
+          {bottomLabel}
+        </span>
+        <span className="text-[11px] md:text-xs font-extrabold mt-0.5 px-1">{bottomValue}</span>
       </div>
     </div>
   );
@@ -116,7 +120,7 @@ const FALLING_LEAVES = [
 
 /**
  * Compact, responsive multi-panel product showcase section for HAI FLY TRAP BROAD KILLER 6X (500ml),
- * rendered with custom asymmetrical curved & angled SVG panels, brand tree branches, and falling leaves.
+ * maintaining identical multi-column organic structure across desktop, tablet, and mobile viewports.
  */
 export function BroadKillerShowcaseSection({
   onShopClick,
@@ -171,7 +175,7 @@ export function BroadKillerShowcaseSection({
         <img src="/products/image%206.png" alt="" loading="lazy" className="w-full h-full object-contain" />
       </div>
 
-      {/* Drifting Animated Falling Leaves Layer (sits cleanly behind panels on mobile) */}
+      {/* Drifting Animated Falling Leaves Layer */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden select-none z-[5]">
         {FALLING_LEAVES.map((leaf, idx) => (
           <div
@@ -195,7 +199,7 @@ export function BroadKillerShowcaseSection({
 
       <div className="section-padding relative z-10">
         <div className="max-w-4xl mx-auto">
-          {/* Header Area: Compact Brand Mark + Main Heading + Tagline */}
+          {/* Header Area */}
           <div className="text-center mb-3 md:mb-4">
             <div className="inline-flex items-center gap-2 rounded-full bg-forest px-3.5 py-1 shadow-md border border-[#017810] mb-2">
               <img
@@ -223,35 +227,35 @@ export function BroadKillerShowcaseSection({
               POWERFUL PROTECTION. LONG-LASTING ELIMINATION.
             </p>
             <p className="mt-0.5 text-[11px] sm:text-xs font-semibold text-on-surface/75">
-              6X Odourless Surface Spray • 500ML Trigger Bottle
+              6X Odourless Surface Spray — 500ML Trigger Bottle
             </p>
           </div>
 
-          {/* Interlocking Asymmetrical Organic Panels */}
-          <div className="space-y-1 lg:space-y-0">
+          {/* Interlocking Asymmetrical Organic Panels (consistent grids & seam angles across web & mobile) */}
+          <div className="space-y-0">
             {/* PANEL 1: BROAD-SPECTRUM PEST CONTROL */}
-            <article className="relative text-white px-4 pt-5 pb-6 sm:px-6 lg:px-7 lg:pt-5 lg:pb-9 transition-transform duration-300 hover:-translate-y-0.5 z-10">
+            <article className="relative text-white px-4 pt-5 pb-9 md:px-7 md:pt-5 md:pb-9 transition-transform duration-300 hover:-translate-y-0.5 z-10">
               <OrganicPanelBackdrop variant="crimson-top" />
 
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_auto_minmax(0,0.75fr)] items-center gap-3 lg:gap-4">
-                {/* Left: Section 1 Info & All 8 Pests Compact Grid */}
+              <div className="relative z-10 grid grid-cols-1 md:grid-cols-[minmax(0,1.35fr)_auto_minmax(0,0.75fr)] items-center gap-3 md:gap-4">
+                {/* Info & 4x2 Vertical Pest Tiles (same 4-col grid on mobile and web) */}
                 <div>
                   <span className="inline-flex items-center rounded-full bg-white text-[#e40d14] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs">
-                    Section 01 • Targeted Control
+                    Targeted Control
                   </span>
-                  <h3 className="mt-2 font-display font-extrabold text-xl sm:text-2xl text-white tracking-tight">
+                  <h3 className="mt-2 font-display font-extrabold text-lg sm:text-2xl text-white tracking-tight">
                     BROAD-SPECTRUM PEST CONTROL
                   </h3>
                   <p className="mt-1 text-xs sm:text-[13px] text-white/95 max-w-xl leading-snug">
                     Fast knockdown across flying, crawling and biting pests in homes, farms, kennels & gardens.
                   </p>
 
-                  {/* 8 Pests Organic Pill Tiles */}
-                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+                  {/* 4-column Icon-Above-Label Grid on all viewports */}
+                  <div className="mt-3 grid grid-cols-4 gap-1.5 sm:gap-2">
                     {TARGET_PESTS.map((pest) => (
                       <div
                         key={pest.name}
-                        className="group/pest flex sm:flex-col items-center justify-start sm:justify-center gap-1.5 sm:gap-1 rounded-tl-2xl rounded-br-2xl rounded-tr-lg rounded-bl-lg bg-white px-2 py-1.5 sm:p-2 text-left sm:text-center shadow-sm border border-[#017810]/15 transition-all duration-200 hover:-translate-y-0.5"
+                        className="group/pest flex flex-col items-center justify-center gap-1 rounded-tl-xl sm:rounded-tl-2xl rounded-br-xl sm:rounded-br-2xl rounded-tr-md sm:rounded-tr-lg rounded-bl-md sm:rounded-bl-lg bg-white p-1.5 sm:p-2 text-center shadow-sm border border-[#017810]/15 transition-all duration-200 hover:-translate-y-0.5"
                       >
                         <div className="w-7 h-7 sm:w-9 sm:h-9 shrink-0 rounded-full bg-[#f8faf9] flex items-center justify-center overflow-hidden border border-[#017810]/20">
                           {pest.image ? (
@@ -262,12 +266,12 @@ export function BroadKillerShowcaseSection({
                               className="w-5 h-5 sm:w-7 sm:h-7 object-contain mix-blend-multiply transition-transform duration-200 group-hover/pest:scale-110"
                             />
                           ) : (
-                            <div className="scale-90 sm:scale-100 transition-transform duration-200 group-hover/pest:scale-110">
+                            <div className="transition-transform duration-200 group-hover/pest:scale-110">
                               {pest.renderSvg?.()}
                             </div>
                           )}
                         </div>
-                        <span className="text-[10.5px] sm:text-[11px] font-bold text-forest leading-tight">
+                        <span className="text-[9.5px] sm:text-[11px] font-bold text-forest leading-tight">
                           {pest.name}
                         </span>
                       </div>
@@ -275,89 +279,91 @@ export function BroadKillerShowcaseSection({
                   </div>
                 </div>
 
-                {/* Middle Seam Badges */}
-                <DualCircleBadges
-                  topLabel="RETAIL"
-                  topValue="₦3,500"
-                  topClassName="bg-white text-forest"
-                  bottomLabel="SIZE"
-                  bottomValue="500ML"
-                  bottomClassName="bg-forest text-white"
-                />
+                {/* Desktop & Tablet Seam Badges; paired side-by-side with Bottle on Mobile */}
+                <div className="flex items-center justify-center gap-4 md:contents">
+                  <DualCircleBadges
+                    topLabel="RETAIL"
+                    topValue="₦3,500"
+                    topClassName="bg-white text-forest"
+                    bottomLabel="SIZE"
+                    bottomValue="500ML"
+                    bottomClassName="bg-forest text-white"
+                  />
 
-                {/* Right: Untouched Bottle Medallion Overlapping Upper Seam */}
-                <div className="flex justify-center">
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:-mt-4 rounded-full bg-white p-2.5 shadow-xl border-4 border-white flex items-center justify-center transition-transform duration-300 hover:scale-[1.03]">
-                    <div className="absolute inset-1.5 rounded-full border border-dashed border-[#017810]/25 pointer-events-none" />
-                    <img
-                      src="/showcase/broad-killer-bottle-cutout.png"
-                      alt="Hai Fly Trap Broad Killer 6X 500ml Odourless Surface Spray Bottle"
-                      className="h-full w-auto object-contain drop-shadow-md"
-                    />
+                  <div className="flex justify-center">
+                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 md:-mt-4 rounded-full bg-white p-2 sm:p-2.5 shadow-xl border-4 border-white flex items-center justify-center transition-transform duration-300 hover:scale-[1.03]">
+                      <div className="absolute inset-1.5 rounded-full border border-dashed border-[#017810]/25 pointer-events-none" />
+                      <img
+                        src="/showcase/broad-killer-bottle-cutout.png"
+                        alt="Hai Fly Trap Broad Killer 6X 500ml Odourless Surface Spray Bottle"
+                        className="h-full w-auto object-contain drop-shadow-md"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </article>
 
-            {/* PANEL 2: LONG-LASTING PROTECTION (Interlocking Parallel Slopes) */}
-            <article className="relative text-white px-4 pt-6 pb-6 sm:px-6 lg:px-7 lg:pt-8 lg:pb-9 lg:-mt-9 transition-transform duration-300 hover:-translate-y-0.5 z-20">
+            {/* PANEL 2: LONG-LASTING PROTECTION (Alternating reversed visual order on both mobile & web) */}
+            <article className="relative text-white px-4 pt-9 pb-9 md:px-7 md:pt-8 md:pb-9 -mt-7 md:-mt-9 transition-transform duration-300 hover:-translate-y-0.5 z-20">
               <OrganicPanelBackdrop variant="forest-middle" />
 
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[minmax(0,0.75fr)_auto_minmax(0,1.35fr)] items-center gap-3 lg:gap-4">
-                {/* Left: Bottle Visual */}
-                <div className="flex justify-center order-3 lg:order-1">
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:mt-2 rounded-full bg-white p-2.5 shadow-xl border-4 border-[#01b200]/35 flex items-center justify-center transition-transform duration-300 hover:scale-[1.03]">
-                    <div className="absolute inset-1.5 rounded-full border border-dashed border-[#017810]/20 pointer-events-none" />
-                    <img
-                      src="/showcase/broad-killer-bottle-cutout.png"
-                      alt="Broad Killer 6X Long-Lasting Spray Bottle"
-                      loading="lazy"
-                      className="h-full w-auto object-contain drop-shadow-md"
+              <div className="relative z-10 grid grid-cols-1 md:grid-cols-[minmax(0,0.75fr)_auto_minmax(0,1.35fr)] items-center gap-3 md:gap-4">
+                {/* Reversed Bottle + Dual Badges Row on Mobile, exact Left + Center on Web */}
+                <div className="order-2 md:contents flex items-center justify-center gap-4">
+                  <div className="flex justify-center md:order-1">
+                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 md:mt-2 rounded-full bg-white p-2 sm:p-2.5 shadow-xl border-4 border-[#01b200]/35 flex items-center justify-center transition-transform duration-300 hover:scale-[1.03]">
+                      <div className="absolute inset-1.5 rounded-full border border-dashed border-[#017810]/20 pointer-events-none" />
+                      <img
+                        src="/showcase/broad-killer-bottle-cutout.png"
+                        alt="Broad Killer 6X Long-Lasting Spray Bottle"
+                        loading="lazy"
+                        className="h-full w-auto object-contain drop-shadow-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="md:order-2">
+                    <DualCircleBadges
+                      topLabel="KILL"
+                      topValue="48 HRS"
+                      topClassName="bg-[#e40d14] text-white"
+                      bottomLabel="HEAT SAFE"
+                      bottomValue="> 35°C"
+                      bottomClassName="bg-white text-[#017810]"
                     />
                   </div>
                 </div>
 
-                {/* Middle Seam Badges */}
-                <div className="order-2">
-                  <DualCircleBadges
-                    topLabel="KILL"
-                    topValue="48 HRS"
-                    topClassName="bg-[#e40d14] text-white"
-                    bottomLabel="HEAT SAFE"
-                    bottomValue="> 35°C"
-                    bottomClassName="bg-white text-[#017810]"
-                  />
-                </div>
-
-                {/* Right: Section 2 Long-Lasting Protection Asymmetric Feature Tiles */}
-                <div className="order-1 lg:order-3">
+                {/* Feature Tiles in Identical 2x2 Grid across mobile and web */}
+                <div className="order-1 md:order-3">
                   <span className="inline-flex items-center rounded-full bg-[#01b200] text-white px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs">
-                    Section 02 • Performance Shield
+                    Performance Shield
                   </span>
-                  <h3 className="mt-2 font-display font-extrabold text-xl sm:text-2xl text-white tracking-tight">
+                  <h3 className="mt-2 font-display font-extrabold text-lg sm:text-2xl text-white tracking-tight">
                     LONG-LASTING PROTECTION
                   </h3>
                   <p className="mt-1 text-xs sm:text-[13px] text-white/90 max-w-xl leading-snug">
                     Upgraded 6X strength engineered for odourless indoor comfort and rugged tropical heat stability.
                   </p>
 
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-2.5">
                     {PROTECTION_HIGHLIGHTS.map((item) => {
                       const Icon = item.icon;
                       return (
                         <div
                           key={item.title}
-                          className="rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md bg-white p-3 text-left shadow-sm border border-[#017810]/20 transition-all duration-200 hover:-translate-y-0.5"
+                          className="rounded-tl-xl sm:rounded-tl-2xl rounded-br-xl sm:rounded-br-2xl rounded-tr-md rounded-bl-md bg-white p-2.5 sm:p-3 text-left shadow-sm border border-[#017810]/20 transition-all duration-200 hover:-translate-y-0.5"
                         >
-                          <div className="flex items-center gap-2">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#017810] text-white">
-                              <Icon className="h-3.5 w-3.5" />
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <span className="flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full bg-[#017810] text-white">
+                              <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             </span>
-                            <h4 className="text-xs sm:text-[13px] font-extrabold text-forest leading-tight">
+                            <h4 className="text-[11px] sm:text-[13px] font-extrabold text-forest leading-tight">
                               {item.title}
                             </h4>
                           </div>
-                          <p className="mt-1.5 text-[11px] text-on-surface/80 leading-snug">
+                          <p className="mt-1 sm:mt-1.5 text-[10px] sm:text-[11px] text-on-surface/80 leading-snug">
                             {item.description}
                           </p>
                         </div>
@@ -368,35 +374,34 @@ export function BroadKillerShowcaseSection({
               </div>
             </article>
 
-            {/* PANEL 3: SAFE AROUND (Interlocking White Label + Curved Green Skirt) */}
-            <article className="relative text-forest px-4 pt-6 pb-5 sm:px-6 lg:px-7 lg:pt-8 lg:pb-7 lg:-mt-9 transition-transform duration-300 hover:-translate-y-0.5 z-10">
+            {/* PANEL 3: SAFE AROUND */}
+            <article className="relative text-forest px-4 pt-9 pb-7 md:px-7 md:pt-8 md:pb-7 -mt-7 md:-mt-9 transition-transform duration-300 hover:-translate-y-0.5 z-10">
               <OrganicPanelBackdrop variant="white-bottom" />
 
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_auto_minmax(0,0.75fr)] items-center gap-3 lg:gap-4">
-                {/* Left: Safe Around Copy + Asymmetric Curved Green Packaging Skirt */}
+              <div className="relative z-10 grid grid-cols-1 md:grid-cols-[minmax(0,1.35fr)_auto_minmax(0,0.75fr)] items-center gap-3 md:gap-4">
                 <div>
                   <span className="inline-flex items-center rounded-full bg-[#e40d14] text-white px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-wider shadow-xs">
-                    Section 03 • Safe Around
+                    Safe Around
                   </span>
-                  <h3 className="mt-2 font-display font-extrabold text-xl sm:text-2xl text-forest tracking-tight">
+                  <h3 className="mt-2 font-display font-extrabold text-lg sm:text-2xl text-forest tracking-tight">
                     SAFE AROUND PEOPLE, PETS & PLANTS
                   </h3>
                   <p className="mt-1 text-xs sm:text-[13px] text-on-surface/80 max-w-xl leading-snug">
                     Targeted elimination designed for peace of mind around family members, companion animals, livestock & greenery.
                   </p>
 
-                  {/* Curved Asymmetrical Green Packaging Skirt */}
-                  <div className="mt-3 rounded-tl-[22px] rounded-br-[22px] rounded-tr-[10px] rounded-bl-[10px] bg-gradient-to-r from-[#017810] via-[#068c16] to-[#006c48] p-3 sm:p-3.5 shadow-inner border-t-[3px] border-[#01b200]">
-                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2.5 sm:grid sm:grid-cols-5 sm:gap-2">
+                  {/* Same 5-Across Single Green Row on Mobile and Desktop */}
+                  <div className="mt-3 rounded-tl-[18px] sm:rounded-tl-[22px] rounded-br-[18px] sm:rounded-br-[22px] rounded-tr-[10px] rounded-bl-[10px] bg-gradient-to-r from-[#017810] via-[#068c16] to-[#006c48] p-2.5 sm:p-3.5 shadow-inner border-t-[3px] border-[#01b200]">
+                    <div className="grid grid-cols-5 gap-1 sm:gap-2">
                       {SAFE_AROUND_SUBJECTS.map((subject) => (
                         <div
                           key={subject.name}
-                          className="group/safe flex flex-col items-center text-center min-w-[68px] sm:min-w-0"
+                          className="group/safe flex flex-col items-center text-center"
                         >
-                          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white text-[#017810] flex items-center justify-center shadow-sm border-2 border-white transition-transform duration-200 group-hover/safe:scale-110">
+                          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white text-[#017810] flex items-center justify-center shadow-sm border-2 border-white transition-transform duration-200 group-hover/safe:scale-110">
                             {subject.renderIcon()}
                           </div>
-                          <span className="mt-1 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wide text-white">
+                          <span className="mt-1 text-[8.5px] sm:text-[11px] font-extrabold uppercase tracking-wide text-white">
                             {subject.name}
                           </span>
                         </div>
@@ -405,26 +410,26 @@ export function BroadKillerShowcaseSection({
                   </div>
                 </div>
 
-                {/* Middle Seam Badges */}
-                <DualCircleBadges
-                  topLabel="EST."
-                  topValue="2018"
-                  topClassName="bg-[#e40d14] text-white"
-                  bottomLabel="CERTIFIED"
-                  bottomValue="NAFDAC"
-                  bottomClassName="bg-[#017810] text-white"
-                />
+                <div className="flex items-center justify-center gap-4 md:contents">
+                  <DualCircleBadges
+                    topLabel="EST."
+                    topValue="2018"
+                    topClassName="bg-[#e40d14] text-white"
+                    bottomLabel="CERTIFIED"
+                    bottomValue="NAFDAC"
+                    bottomClassName="bg-[#017810] text-white"
+                  />
 
-                {/* Right: Compact Product Medallion */}
-                <div className="flex justify-center">
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:mt-1 rounded-full bg-[#f8faf9] p-2.5 shadow-xl border-4 border-[#017810]/20 flex items-center justify-center transition-transform duration-300 hover:scale-[1.03]">
-                    <div className="absolute inset-1.5 rounded-full border border-dashed border-[#017810]/20 pointer-events-none" />
-                    <img
-                      src="/showcase/broad-killer-bottle-cutout.png"
-                      alt="Broad Killer 500ml Safe Around Formula"
-                      loading="lazy"
-                      className="h-full w-auto object-contain drop-shadow-md"
-                    />
+                  <div className="flex justify-center">
+                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 md:mt-1 rounded-full bg-[#f8faf9] p-2 sm:p-2.5 shadow-xl border-4 border-[#017810]/20 flex items-center justify-center transition-transform duration-300 hover:scale-[1.03]">
+                      <div className="absolute inset-1.5 rounded-full border border-dashed border-[#017810]/20 pointer-events-none" />
+                      <img
+                        src="/showcase/broad-killer-bottle-cutout.png"
+                        alt="Broad Killer 500ml Safe Around Formula"
+                        loading="lazy"
+                        className="h-full w-auto object-contain drop-shadow-md"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -432,9 +437,9 @@ export function BroadKillerShowcaseSection({
           </div>
 
           {/* Bottom Organic Highlight Row */}
-          <div className="mt-1.5 lg:-mt-1 grid grid-cols-1 lg:grid-cols-12 gap-2.5 lg:gap-3 items-stretch">
-            {/* Highlight 1: Dedicated Tamper-Proof Protection */}
-            <div className="relative lg:col-span-5 px-5 py-5 flex flex-col sm:flex-row items-center gap-3.5 transition-transform duration-300 hover:-translate-y-0.5">
+          <div className="mt-1 lg:-mt-1 grid grid-cols-1 md:grid-cols-12 gap-2.5 lg:gap-3 items-stretch">
+            {/* Highlight 1: Dedicated Tamper-Proof Protection (same horizontal arrangement on mobile & desktop) */}
+            <div className="relative md:col-span-5 px-4 sm:px-5 py-4 sm:py-5 flex flex-row items-center gap-3.5 transition-transform duration-300 hover:-translate-y-0.5">
               <OrganicMiniCardBackdrop variant="tamper-seal" />
 
               <div className="relative z-10 w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-full bg-[#f8faf9] border-2 border-[#e40d14]/30 p-2 flex items-center justify-center overflow-hidden shadow-sm">
@@ -446,7 +451,7 @@ export function BroadKillerShowcaseSection({
                 />
               </div>
 
-              <div className="relative z-10 text-center sm:text-left">
+              <div className="relative z-10 text-left">
                 <div className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#e40d14]">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Red Tamper-Proof Seal</span>
@@ -461,7 +466,7 @@ export function BroadKillerShowcaseSection({
             </div>
 
             {/* Highlight 2: Price, Size & Trust Credentials */}
-            <div className="relative lg:col-span-4 px-5 py-5 text-white flex flex-col justify-between transition-transform duration-300 hover:-translate-y-0.5">
+            <div className="relative md:col-span-4 px-4 sm:px-5 py-4 sm:py-5 text-white flex flex-col justify-between transition-transform duration-300 hover:-translate-y-0.5">
               <OrganicMiniCardBackdrop variant="price-trust" />
 
               <div className="relative z-10 flex items-center justify-between gap-2">
@@ -506,7 +511,7 @@ export function BroadKillerShowcaseSection({
             </div>
 
             {/* Highlight 3: Closing Promise & Order CTA */}
-            <div className="relative lg:col-span-3 px-5 py-5 text-white flex flex-col justify-between text-center lg:text-left transition-transform duration-300 hover:-translate-y-0.5">
+            <div className="relative md:col-span-3 px-4 sm:px-5 py-4 sm:py-5 text-white flex flex-col justify-between text-left transition-transform duration-300 hover:-translate-y-0.5">
               <OrganicMiniCardBackdrop variant="promise-cta" />
 
               <div className="relative z-10">
